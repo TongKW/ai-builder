@@ -1,0 +1,58 @@
+nodes:
+  - id: node_id_1
+    key: single_file_upload_txt
+    title: "File Upload (TXT)"
+    description: "Upload and store a text file."
+    status: idle
+    output:
+      - order: 0
+        type: txt
+  
+  - id: node_id_2
+    key: gpt_4_turbo
+    parameters:
+      - response_in_json: true
+      - messages:
+        - role: system
+          content: "You will be provided with a large chunk of text, and your task is to translate the text from English to Traditional Chinese. Return the translated text as output only."
+        - role: user
+          content: {{ input.0 }}
+    title: "Translation (English -> Traditional Chinese)"
+    description: "Translate text from English to Traditional Chinese."
+    category: "Text Processing"
+    input:
+      - order: 0
+        type: txt
+    output:
+      - order: 0
+        type: txt
+
+  - id: node_id_3
+    key: single_file_download
+    title: "File Download"
+    description: "Download a file."
+    status: idle
+    input:
+      - order: 0
+        type: any
+
+data:
+  - id: data_id_1
+    type: txt
+    status: idle
+    from:
+      - node_id: node_id_1
+        order: 0
+    to:
+      - node_id: node_id_2
+        order: 0
+
+  - id: data_id_2
+    type: txt
+    status: idle
+    from:
+      - node_id: node_id_2
+        order: 0
+    to:
+      - node_id: node_id_3
+        order: 0

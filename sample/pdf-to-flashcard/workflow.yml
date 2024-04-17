@@ -1,0 +1,83 @@
+nodes:
+  - id: node_id_1
+    key: single_file_upload_pdf
+    title: "File Upload (PDF)"
+    description: "Upload and store a PDF."
+    status: idle
+    output:
+      - order: 0
+        type: pdf
+
+  - id: node_id_2
+    key: pdf_to_text
+    title: "PDF to Text"
+    description: "This node will turn a PDF into a text file."
+    category: "Data format"
+    input:
+      - order: 0
+        type: pdf
+    output:
+      - order: 0
+        type: text
+  
+  - id: node_id_3
+    key: gpt_4_turbo
+    parameters:
+      - response_in_json: true
+      - messages:
+        - role: system
+          content: "You will be provided with a large chunk of text, and your task is to generate a list of multiple-choice questions related to the text context. The output format must be json."
+        - role: user
+          content: {{ input.0 }}
+    title: "Anki Generation"
+    description: "Generate a list of MC Questions based on the given text."
+    category: "Text Processing"
+    input:
+      - order: 0
+        type: text
+    output:
+      - order: 0
+        type: json
+
+  - id: node_id_4
+    key: single_file_download
+    title: "File Download"
+    description: "Download a file."
+    status: idle
+    input:
+      - order: 0
+        type: json
+
+data:
+  - id: data_id_1
+    type: pdf
+    filename: a2tj30.pdf
+    status: idle
+    from:
+      - node_id: node_id_1
+        order: 0
+    to:
+      - node_id: node_id_2
+        order: 0
+
+  - id: data_id_2
+    type: text
+    filename: 32uop8.txt
+    status: idle
+    from:
+      - node_id: node_id_2
+        order: 0
+    to:
+      - node_id: node_id_3
+        order: 0
+
+  - id: data_id_3
+    type: json
+    filename: dio245.txt
+    status: idle
+    from:
+      - node_id: node_id_3
+        order: 0
+    to:
+      - node_id: node_id_4
+        order: 0
