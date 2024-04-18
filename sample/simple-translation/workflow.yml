@@ -1,12 +1,14 @@
 nodes:
   - id: node_id_1
-    key: single_file_upload_txt
-    title: "File Upload (TXT)"
-    description: "Upload and store a text file."
+    key: single_file_upload
+    title: "File Upload"
+    description: "Upload and store a file."
     status: idle
     output:
       - order: 0
-        type: txt
+        type: text
+        key: data_id_1.txt
+        status: idle
   
   - id: node_id_2
     key: gpt_4_turbo
@@ -22,10 +24,14 @@ nodes:
     category: "Text Processing"
     input:
       - order: 0
-        type: txt
+        type: text
+        key: data_id_1.txt
+        status: idle
     output:
       - order: 0
-        type: txt
+        type: text
+        key: data_id_2.txt
+        status: idle
 
   - id: node_id_3
     key: single_file_download
@@ -34,25 +40,22 @@ nodes:
     status: idle
     input:
       - order: 0
-        type: any
+        type: text
+        key: data_id_2.txt
+        status: idle
 
-data:
-  - id: data_id_1
-    type: txt
-    status: idle
-    from:
-      - node_id: node_id_1
-        order: 0
+flows:
+  - from:
+    - node: node_id_1
+      order: 0
     to:
-      - node_id: node_id_2
-        order: 0
+    - node: node_id_2
+      order: 0
 
-  - id: data_id_2
-    type: txt
-    status: idle
-    from:
-      - node_id: node_id_2
-        order: 0
+  - from:
+    - node: node_id_2
+      order: 0
     to:
-      - node_id: node_id_3
-        order: 0
+    - node: node_id_3
+      order: 0
+    

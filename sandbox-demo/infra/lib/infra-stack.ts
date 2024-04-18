@@ -26,7 +26,8 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
 
     // All available sandbox blocks to use:
 
-    // 1. block 1 - file upload (file-upload)
+    // ==========================================================================================
+    // block - file upload (single_file_upload)
     // Infra: api intgration <-> lambda function
     // Format: (any) -> <void>
     // Description:
@@ -48,7 +49,35 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     fileUploadResource.addMethod("POST", fileUploadLambdaIntegration);
     lambdaToS3Policy(fileUploadBlock, "ai-pipeline-builder-sandbox");
 
-    // 2. block 2 - GPT 4 (gpt-4-turbo)
+    // ==========================================================================================
+    // block - file download (single_file_download)
+    // Infra: api intgration <-> lambda function
+    // Format: (any) -> <void>
+    // Description:
+    // POST (body: {id:xxx}): get the pre-signed url for s3 object: ai-pipeline-builder-sandbox/${workflow_id}
+    const fileDownloadBlock = new lambda.Function(
+      this,
+      "SingleFileDownloadBlock",
+      {
+        runtime: lambda.Runtime.NODEJS_18_X,
+        code: lambda.Code.fromAsset(
+          path.join(__dirname, "lambda", "single_file_download", "src.zip")
+        ),
+        memorySize: 128,
+        handler: "index.handler",
+        timeout: cdk.Duration.minutes(5),
+      }
+    );
+    // lambda integration
+    const fileDownloadResource = services.addResource("single_file_download");
+    const fileDownloadLambdaIntegration = new apigateway.LambdaIntegration(
+      fileDownloadBlock
+    );
+    fileDownloadResource.addMethod("POST", fileDownloadLambdaIntegration);
+    lambdaToS3Policy(fileDownloadBlock, "ai-pipeline-builder-sandbox");
+
+    // ==========================================================================================
+    // block - GPT 4 (gpt_4_turbo)
     // Infra: api intgration <-> lambda function
     // Format: <text> -> <text>
     // Description:
@@ -73,7 +102,8 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     gpt4Resource.addMethod("POST", gpt4LambdaIntegration);
     lambdaToS3Policy(gpt4TurboBlock, "ai-pipeline-builder-sandbox");
 
-    // 3. block type 3 - conditional (conditional)
+    // ==========================================================================================
+    // 3. block - conditional (conditional)
     // Infra: api intgration <-> lambda function
     // Format: <text> | <JSON> -> <text> | <JSON>
     // Description:
