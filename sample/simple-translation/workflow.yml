@@ -25,11 +25,15 @@ nodes:
     input:
       - order: 0
         type: text
+        title: "Input Text"
+        description: "Text written in English that is going to be translated to Tranditional Chinese."
         key: data_id_1.txt
         status: idle
     output:
       - order: 0
         type: text
+        title: "Translated Text"
+        description: "Text that translated to Traditional Chinese."
         key: data_id_2.txt
         status: idle
 

@@ -9,78 +9,60 @@ import ReactFlow, {
   Controls,
   updateEdge,
   ConnectionLineType,
+  EdgeChange,
+  NodeChange,
 } from "reactflow";
 
 import "reactflow/dist/base.css";
 
-import Gpt4TurboNode from "@/components/nodes/services/gpt_4_turbo";
-import SingleFileUploadNode from "@/components/nodes/services/single_file_upload";
-import SingleFileDownloadNode from "@/components/nodes/services/single_file_download";
-
-const nodeTypes = {
-  gpt_4_turbo: Gpt4TurboNode,
-  single_file_upload: SingleFileUploadNode,
-  single_file_download: SingleFileDownloadNode,
-};
+import { useDebouncedCallback } from "use-debounce";
+import { NodeSidePanel } from "@/components/nodes/panel";
+import { reactFlowNodeTypes } from "@/components/nodes/data";
+import { validateEdge } from "@/components/nodes/utils/validateEdge";
+import { assignNodesDataIO } from "@/components/nodes/utils/nodesDataIO";
 
 export default function App() {
   const defaultEdgeOptions = {
     animated: true,
-    type: "smoothstep",
+    type: "bazier",
   };
 
   const edgeUpdateSuccessful = useRef(true);
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "1",
-      type: "gpt_4_turbo",
-      data: {
-        title: "Translation (English -> Traditional Chinese)",
-        description: "Translate text from English to Traditional Chinese.",
-        category: "Text Processing",
-        status: "idle",
-      },
-      position: { x: 0, y: 0 },
-    },
-    {
-      id: "2",
-      type: "gpt_4_turbo",
-      data: {
-        title: "Translation (English -> Traditional Chinese)",
-        description: "Translate text from English to Traditional Chinese.",
-        category: "Text Processing",
-        status: "pending",
-      },
-      position: { x: 50, y: 10 },
-    },
-    {
-      id: "3",
-      type: "single_file_upload",
-      data: {
-        title: "File Upload",
-        description: "Upload and store a file.",
-        category: "Data Input/Ouput",
-        status: "ready",
-      },
-      position: { x: 23, y: 49 },
-    },
-    {
-      id: "4",
-      type: "single_file_download",
-      data: {
-        title: "File Download",
-        description: "Download the file.",
-        category: "Data Input/Ouput",
-        status: "idle",
-      },
-      position: { x: 30, y: 30 },
-    },
-  ]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  // Create a debounced function that will be called after 1 second of inactivity
+  const debouncedUpdate = useDebouncedCallback(
+    () => {
+      console.log(
+        "Debounced function called with latest nodes and edges",
+        nodes,
+        edges
+      );
+      // Implement the logic you want to execute after the debounce period here.
+      // TODO1: generate yaml and update `unsaved` state
+    },
+    1000 // delay in milliseconds
+  );
+
+  // Effect that triggers the debounced function on changes to nodes or edges
+  React.useEffect(() => {
+    debouncedUpdate();
+  }, [nodes, edges, debouncedUpdate]);
+
   const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    []
+    (params: any) => {
+      if (validateEdge(nodes, params)) {
+        // 1. generate and assign a data id corresponding to the two ends of the connection
+        setNodes((nodes) => assignNodesDataIO(nodes, params));
+
+        // 2. update edges
+        setEdges((eds) => {
+          return addEdge(params, eds);
+        });
+      }
+    },
+    [nodes, setEdges, setNodes]
   );
 
   const onEdgeUpdateStart = useCallback(() => {
@@ -94,15 +76,21 @@ export default function App() {
 
   const onEdgeUpdateEnd = useCallback((_: any, edge: any) => {
     if (!edgeUpdateSuccessful.current) {
+      // 1. set edge
       setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-    }
 
+      // 2.
+      console.log(edge);
+    }
     edgeUpdateSuccessful.current = true;
   }, []);
 
   return (
     <main className="flex max-h-screen max-w-screen flex-col items-center justify-between">
       <div className="flex flex-col w-screen h-screen">
+        <NodeSidePanel
+          onNodeCreate={(node: any) => setNodes((nodes) => [...nodes, node])}
+        />
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -112,11 +100,10 @@ export default function App() {
           onEdgeUpdateStart={onEdgeUpdateStart}
           onEdgeUpdateEnd={onEdgeUpdateEnd}
           onConnect={onConnect}
-          nodeTypes={nodeTypes}
+          nodeTypes={reactFlowNodeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
-          connectionLineType={ConnectionLineType.SmoothStep}
           // fitView
-          // contentEditable={} // turn to false when workflow is running
+          // contentEditable={} // TODO: turn to false when workflow is running
           className="bg-teal-50 h-100 w-100"
         >
           <MiniMap />
