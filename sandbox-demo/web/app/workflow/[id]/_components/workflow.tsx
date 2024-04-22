@@ -69,7 +69,7 @@ export default function Workflow({
         edges
       );
       // Implement the logic you want to execute after the debounce period here.
-      const yamlStr = reactFlowToYaml(nodes, edges);
+      const yamlStr = reactFlowToYaml(nodes, edges, initWorkflowSrc);
       setWorkflowSrc(yamlStr);
 
       // update unsaved changes
@@ -89,8 +89,9 @@ export default function Workflow({
 
   // Effect that triggers the debounced function on changes to nodes or edges
   useEffect(() => {
+    if (isRunning) return;
     debouncedUpdate();
-  }, [nodes, edges, debouncedUpdate]);
+  }, [isRunning, nodes, edges, debouncedUpdate]);
 
   const onConnect = useCallback(
     (params: any) => {
@@ -130,7 +131,7 @@ export default function Workflow({
   );
 
   return (
-    <WorkflowContext.Provider value={{ workflowId }}>
+    <WorkflowContext.Provider value={{ workflowId, setWorkflowSrc, setNodes }}>
       <div className="flex flex-col w-screen h-screen">
         <NodeSidePanel
           onNodeCreate={(node: any) => {
@@ -153,7 +154,6 @@ export default function Workflow({
           onWorkflowSave={onWorkflowSave}
         />
         <ReactFlow
-          // fitView
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}

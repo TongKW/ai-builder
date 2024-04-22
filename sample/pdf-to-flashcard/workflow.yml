@@ -18,7 +18,7 @@ nodes:
         type: pdf
     output:
       - order: 0
-        type: text
+        type: txt
   
   - id: node_id_3
     key: gpt_4_turbo
@@ -34,7 +34,7 @@ nodes:
     category: "Text Processing"
     input:
       - order: 0
-        type: text
+        type: txt
     output:
       - order: 0
         type: json
@@ -61,7 +61,7 @@ data:
         order: 0
 
   - id: data_id_2
-    type: text
+    type: txt
     filename: 32uop8.txt
     status: idle
     from:

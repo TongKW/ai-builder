@@ -12,13 +12,13 @@ export const reactFlowData: { [key: string]: NodeData } = {
       status: "idle",
       input: [
         {
-          type: "text",
+          type: "txt",
           order: 0,
         },
       ],
       output: [
         {
-          type: "text",
+          type: "txt",
           order: 0,
         },
       ],
@@ -34,7 +34,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       input: [],
       output: [
         {
-          type: "text",
+          type: "txt",
           order: 0,
         },
       ],
@@ -81,7 +81,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       status: "idle",
       input: [
         {
-          type: "text",
+          type: "txt",
           order: 0,
         },
       ],

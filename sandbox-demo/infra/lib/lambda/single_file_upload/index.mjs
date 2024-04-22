@@ -30,6 +30,10 @@ export async function handler(event) {
     // Logic to update the status of the specified node and handle
     for (let node of workflow.nodes) {
       if (node.id === nodeId) {
+        // 1. update node status
+        node.status = "ready";
+
+        // 2. update data status
         if (nodeHandle.startsWith("input.")) {
           let index = parseInt(nodeHandle.split(".")[1]);
           if (node.input && node.input.length > index) {

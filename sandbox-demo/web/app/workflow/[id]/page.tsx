@@ -1,6 +1,7 @@
 import { isValidWorkflowId } from "@/lib/format/uuid";
 import Workflow from "./_components/workflow";
 import { redirect } from "next/navigation";
+import { updateNodesStatus } from "@/lib/parser/update-node-status";
 
 export default async function WorkflowPage({
   params,
@@ -27,7 +28,7 @@ export default async function WorkflowPage({
     <Workflow
       workflowId={workflowId}
       initWorkflowSrc={workflowSrc}
-      initNodes={nodes}
+      initNodes={updateNodesStatus(nodes, workflowSrc)}
       initEdges={edges}
     />
   );

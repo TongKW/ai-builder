@@ -7,7 +7,7 @@
       "status": "idle",
       "input": [
         {
-          "type": "text",
+          "type": "txt",
           "order": 0,
           "key": "311f6d5418144a14a804acbf6388a95b.txt",
           "status": "idle"
@@ -15,7 +15,7 @@
       ],
       "output": [
         {
-          "type": "text",
+          "type": "txt",
           "order": 0,
           "key": "2e8d7daec27448c8949ea1785c8e57d7.txt",
           "status": "idle"
@@ -46,7 +46,7 @@
       "input": [],
       "output": [
         {
-          "type": "text",
+          "type": "txt",
           "order": 0,
           "key": "311f6d5418144a14a804acbf6388a95b.txt",
           "status": "idle"
@@ -76,7 +76,7 @@
       "status": "idle",
       "input": [
         {
-          "type": "text",
+          "type": "txt",
           "order": 0,
           "key": "2e8d7daec27448c8949ea1785c8e57d7.txt",
           "status": "idle"

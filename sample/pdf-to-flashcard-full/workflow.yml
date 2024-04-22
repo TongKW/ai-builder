@@ -20,7 +20,7 @@ nodes:
         type: pdf
     output:
       - order: 0
-        type: text
+        type: txt
 
   - id: node_id_3
     key: text_chunking
@@ -32,7 +32,7 @@ nodes:
       - chunk_size: 30
     input:
       - order: 0
-        type: text
+        type: txt
     output:
       - order: 0
         type: json
@@ -95,7 +95,7 @@ data:
         order: 0
 
   - id: data_id_2
-    type: text
+    type: txt
     status: idle
     from:
       - node_id: node_id_2

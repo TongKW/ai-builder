@@ -35,6 +35,8 @@ function SingleFileDownloadNode({ data }: NodeData) {
         className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
         style={{
           backgroundColor: dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
+          animation:
+            data.input[0].status === "ready" ? "pulse 1s infinite" : undefined,
         }}
       >
         <MoveDown className="pointer-events-none w-4 h-4" />

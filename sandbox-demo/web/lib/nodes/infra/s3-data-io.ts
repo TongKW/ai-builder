@@ -9,7 +9,7 @@ export async function getS3PresignedUrl(
     const result = await fetch(
       `${
         process.env.SANDBOX_API
-      }/services/single_file_download?filename=${encodeURIComponent(
+      }/services/single_file_download?key=${encodeURIComponent(
         key
       )}&workflowId=${workflowId}`,
       {
@@ -23,7 +23,7 @@ export async function getS3PresignedUrl(
     const result = await fetch(
       `${
         process.env.SANDBOX_API
-      }/services/single_file_upload?filename=${encodeURIComponent(
+      }/services/single_file_upload?key=${encodeURIComponent(
         key
       )}&workflowId=${workflowId}`,
       {
@@ -41,12 +41,17 @@ export async function updateSingleUploadDataStatus(args: {
   workflowId: string;
   nodeId: string;
   nodeHandle: string;
-}) {
-  await fetch(`${process.env.SANDBOX_API}/services/single_file_upload`, {
-    method: "POST",
-    body: JSON.stringify(args),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+}): Promise<string> {
+  const result = await fetch(
+    `${process.env.SANDBOX_API}/services/single_file_upload`,
+    {
+      method: "POST",
+      body: JSON.stringify(args),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const { workflowSrc } = await result.json();
+  return workflowSrc;
 }

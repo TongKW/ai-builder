@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { MoveDown, Upload } from "lucide-react";
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { Handle, Position } from "reactflow";
 import {
   Tooltip,
@@ -16,33 +16,108 @@ import {
   updateSingleUploadDataStatus,
 } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
+import { getFileExtension } from "@/lib/format/file-type";
 
 function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
-  const { workflowId } = useWorkflowContext();
+  const { workflowId, setNodes } = useWorkflowContext();
 
-  /*
-  TODO: Add the following functionality to this block (when file is dragged to this block, trigger the following)
+  const handleFileUpload = useCallback(
+    async (file: File) => {
+      if (getFileExtension(file) !== data.output[0].type) {
+        toast({
+          variant: "destructive",
+          title: "Failed to upload file.",
+          description: `File type didn't match. It must be in .${data.output[0].type}.`,
+        });
+        return;
+      }
 
-  // 1. get pre-signed url
-  // const presignedUrl = const getS3PresignedUrl(workflowId, data.output[0].key, "putObject")
+      try {
+        if (!data.output[0].key) {
+          toast({
+            title: "Failed to upload file.",
+            description: "You must connect to an input first.",
+          });
+          return;
+        }
+        toast({
+          title: "Uploading your file...",
+          description: "This might takes a few seconds.",
+        });
 
-  // 2. upload file via presignedUrl
+        const presignedUrl = await getS3PresignedUrl(
+          workflowId,
+          data.output[0].key,
+          "putObject"
+        );
 
-  // 3. update states
-  // updateSingleUploadDataStatus({workflowId, nodeId, nodeHandle: "output.0"})
+        await fetch(presignedUrl, {
+          method: "PUT",
+          body: file,
+          headers: {
+            "Content-Type": file.type,
+          },
+        });
 
-  */
+        // const newWorkflowSrc = await updateSingleUploadDataStatus({
+        //   workflowId,
+        //   nodeId,
+        //   nodeHandle: "output.0",
+        // });
+        // setWorkflowSrc(newWorkflowSrc);
+        setNodes((nodes: any[]) =>
+          nodes.map((node) => {
+            if (node.id === nodeId) {
+              const nodeCopy = { ...node };
+              nodeCopy.data.status = "ready";
+              if (nodeCopy.data?.output[0]?.status) {
+                nodeCopy.data.output[0].status = "ready";
+              }
+              return nodeCopy;
+            }
+            return node;
+          })
+        );
 
-  const onFileTypeMismatch = () => {
-    toast({
-      variant: "destructive",
-      title: "Failed to upload file.",
-      description: `File type didn't match. It must be in .${data.output[0].type}.`,
-    });
-  };
+        toast({
+          title: "File uploaded successfully.",
+          description: "File has been successfully uploaded to S3.",
+        });
+      } catch (error) {
+        console.log("Upload file error");
+        console.log(error);
+
+        toast({
+          variant: "destructive",
+          title: "Failed to upload file.",
+          description: "Please try to upload file later.",
+        });
+      }
+    },
+    [workflowId, nodeId, data.output]
+  );
+
+  const onDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const file = event.dataTransfer.files[0];
+      handleFileUpload(file);
+    },
+    [handleFileUpload]
+  );
+
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
 
   return (
-    <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative">
+    <div
+      className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative"
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+    >
       <p
         className="text-center absolute min-w-40 pb-2 whitespace-nowrap pointer-events-none"
         style={{
@@ -60,9 +135,13 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
         id="output.0"
         type="source"
         position={Position.Bottom}
-        className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
+        className={clsx(
+          "w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
+        )}
         style={{
           backgroundColor: dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
+          animation:
+            data.output[0].status === "ready" ? "pulse 1s infinite" : undefined,
         }}
       >
         <MoveDown className="pointer-events-none w-4 h-4" />
@@ -70,7 +149,6 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
     </div>
   );
 }
-
 export function SingleFileUploadNodeUi({
   status,
   description,
@@ -80,6 +158,22 @@ export function SingleFileUploadNodeUi({
   description?: string;
   size?: number;
 }) {
+  // const backgroundStyles: {
+  //   [key: string]: { backgroundColor: string; animation?: string };
+  // } = {
+  //   idle: { backgroundColor: "white" },
+  //   ready: { backgroundColor: "#ccffcc" }, // equivalent to bg-green-100 in Tailwind CSS
+  //   pending: {
+  //     backgroundColor: "#f3f3f3", // equivalent to bg-gray-100 in Tailwind CSS
+  //     animation: "pulse 2s infinite",
+  //   },
+  // };
+
+  // // Set default or current status style
+  // const currentStyle = backgroundStyles[status] || {};
+
+  // console.log(`[SingleFileUploadNodeUi] status = ${status}`);
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -93,6 +187,7 @@ export function SingleFileUploadNodeUi({
                 "bg-gray-100 animate-pulse": status === "pending",
               }
             )}
+            // style={currentStyle}
           >
             <Upload
               style={{

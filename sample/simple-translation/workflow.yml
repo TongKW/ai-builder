@@ -6,7 +6,7 @@ nodes:
     status: idle
     output:
       - order: 0
-        type: text
+        type: txt
         key: 311f6d5418144a14a804acbf6388a95b.txt
         status: idle
   
@@ -24,14 +24,14 @@ nodes:
     category: "Text Processing"
     input:
       - order: 0
-        type: text
+        type: txt
         title: "Input Text"
         description: "Text written in English that is going to be translated to Tranditional Chinese."
         key: 311f6d5418144a14a804acbf6388a95b.txt
         status: idle
     output:
       - order: 0
-        type: text
+        type: txt
         title: "Translated Text"
         description: "Text that translated to Traditional Chinese."
         key: 2e8d7daec27448c8949ea1785c8e57d7.txt
@@ -44,6 +44,6 @@ nodes:
     status: idle
     input:
       - order: 0
-        type: text
+        type: txt
         key: 2e8d7daec27448c8949ea1785c8e57d7.txt
         status: idle
