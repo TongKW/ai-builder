@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import AceEditor from "react-ace";
 
@@ -9,7 +11,11 @@ import { FileCode } from "lucide-react";
 
 const initYaml = `nodes: []\nedges:[]`;
 
-export function YamlDebugPanel({ yamlSrc = initYaml }: { yamlSrc: string }) {
+export function WorkflowDebugPanel({
+  yamlSrc = initYaml,
+}: {
+  yamlSrc: string;
+}) {
   const [yamlContent, setYamlContent] = useState(initYaml);
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -23,7 +29,7 @@ export function YamlDebugPanel({ yamlSrc = initYaml }: { yamlSrc: string }) {
       <Button
         variant="outline"
         size="icon"
-        className="z-[99999] fixed top-[80px] right-[30px] shadow-lg"
+        className="z-[99999] fixed top-[130px] right-[30px] shadow-lg"
         onClick={toggleSidebar}
       >
         <FileCode className="h-4 w-4" />

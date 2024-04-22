@@ -7,7 +7,6 @@ import { MemoExoticComponent } from "react";
 import { reactFlowData, reactFlowDataTypeMap } from "./constants";
 
 interface ReactFlowNodeData extends NodeData {
-  id: string;
   type: string;
   position: {
     x: number;
@@ -18,6 +17,7 @@ interface ReactFlowNodeData extends NodeData {
 }
 
 export interface NodeData {
+  id: string;
   data: {
     title: string;
     description?: string;

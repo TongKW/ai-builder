@@ -22,16 +22,11 @@ function SingleFileDownloadNode({ data }: NodeData) {
       >
         {data.title}
       </p>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SingleFileDownloadNodeUi status={data.status ?? "idle"} />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{data.description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+
+      <SingleFileDownloadNodeUi
+        status={data.status ?? "idle"}
+        description={data.description}
+      />
 
       <Handle
         id="input.0"
@@ -50,30 +45,41 @@ function SingleFileDownloadNode({ data }: NodeData) {
 
 export function SingleFileDownloadNodeUi({
   status,
+  description,
   size = 60,
 }: {
   status: string;
+  description?: string;
   size?: number;
 }) {
   return (
-    <div
-      className={clsx(
-        "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
-        {
-          "bg-white": status === "idle",
-          "bg-green-100": status === "ready",
-          "bg-gray-100 animate-pulse": status === "pending",
-        }
-      )}
-    >
-      <Download
-        style={{
-          width: size,
-          height: size,
-          color: "black",
-        }}
-      />
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={clsx(
+              "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
+              {
+                "bg-white": status === "idle",
+                "bg-green-100": status === "ready",
+                "bg-gray-100 animate-pulse": status === "pending",
+              }
+            )}
+          >
+            <Download
+              style={{
+                width: size,
+                height: size,
+                color: "black",
+              }}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{description}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 

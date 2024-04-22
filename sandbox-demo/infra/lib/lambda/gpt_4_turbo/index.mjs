@@ -17,47 +17,23 @@ export async function handler(event) {
   if (httpMethod === "POST") {
     const body = JSON.parse(event.body);
 
-    const workflow_id = body.workflow_id;
-    const output_files = body.output_files;
+    const workflowId = body.workflowId;
+    const outputKeys = body.outputKeys;
 
-    if (!workflow_id || !output_files || !output_files.length)
+    if (!workflowId || !outputKeys || !outputKeys.length) {
       throw new Error("Invalid request.");
-
-    // // 0. Get workflow file on s3
-    // const s3BucketName = "ai-pipeline-builder-sandbox";
-    // const workflowFilePath = `${workflow_id}/workflow.yml`;
-    // let workflowDoc;
-
-    // try {
-    //   const s3Response = await s3.send(
-    //     new GetObjectCommand({
-    //       Bucket: s3BucketName,
-    //       Key: workflowFilePath,
-    //     })
-    //   );
-    //   const yamlData = await streamToString(s3Response.Body);
-    //   workflowDoc = yaml.load(yamlData);
-    //   console.log(workflowDoc);
-    // } catch (e) {
-    //   console.error("Error loading workflow YAML:", e);
-    //   return {
-    //     statusCode: 500,
-    //     body: JSON.stringify({
-    //       message: "Failed to load workflow configuration.",
-    //     }),
-    //   };
-    // }
+    }
 
     // 1. OpenAI API configurable parameters
     const messages = body.messages;
-    const response_in_json = body.response_in_json;
+    const responseInJson = body.responseInJson;
 
     // 2. Replace placeholders in messages with actual data
     const regex = /\{\{\s*(\w+)\s*\}\}/g;
     for (let message of messages) {
       message.content = await replacePlaceholders(
         message.content,
-        workflow_id,
+        workflowId,
         "ai-pipeline-builder-sandbox",
         regex
       );
@@ -67,14 +43,14 @@ export async function handler(event) {
     const completion = await openai.chat.completions.create({
       messages: messages,
       model: "gpt-4-turbo",
-      response_in_json: response_in_json,
+      response_in_json: responseInJson,
     });
 
     // 3. save output data to s3
     await saveOutputToS3(
       completion.choices[0].message.content,
-      response_in_json,
-      output_files[0]
+      responseInJson,
+      outputKeys[0]
     );
 
     return {

@@ -6,15 +6,14 @@ const s3 = new S3Client({ region: "us-west-1" });
 export async function handler(event) {
   const httpMethod = event.httpMethod;
 
-  if (httpMethod === "POST") {
-    const body = JSON.parse(event.body);
-    const filename = body.filename;
-    const workflowId = body.workflow_id;
+  if (httpMethod === "GET") {
+    const key = event.queryStringParameters.key;
+    const workflowId = event.queryStringParameters.workflowId;
 
-    if (!filename || !workflowId) throw new Error("Invalid request.");
+    if (!key || !workflowId) throw new Error("Invalid request.");
 
     // Return a pre-signed url to the user for file upload with permission
-    const objectKey = `${workflowId}/data/${filename}`;
+    const objectKey = `${workflowId}/data/${key}`;
     const bucketName = "ai-pipeline-builder-sandbox";
 
     const command = new GetObjectCommand({

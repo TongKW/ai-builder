@@ -10,8 +10,37 @@ import {
 } from "@/components/ui/tooltip";
 import { NodeData, NodeDataIO } from "../data";
 import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { toast } from "@/components/ui/use-toast";
+import {
+  getS3PresignedUrl,
+  updateSingleUploadDataStatus,
+} from "@/lib/nodes/infra/s3-data-io";
+import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 
-function SingleFileUploadNode({ data }: NodeData) {
+function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
+  const { workflowId } = useWorkflowContext();
+
+  /*
+  TODO: Add the following functionality to this block (when file is dragged to this block, trigger the following)
+
+  // 1. get pre-signed url
+  // const presignedUrl = const getS3PresignedUrl(workflowId, data.output[0].key, "putObject")
+
+  // 2. upload file via presignedUrl
+
+  // 3. update states
+  // updateSingleUploadDataStatus({workflowId, nodeId, nodeHandle: "output.0"})
+
+  */
+
+  const onFileTypeMismatch = () => {
+    toast({
+      variant: "destructive",
+      title: "Failed to upload file.",
+      description: `File type didn't match. It must be in .${data.output[0].type}.`,
+    });
+  };
+
   return (
     <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative">
       <p
@@ -22,16 +51,11 @@ function SingleFileUploadNode({ data }: NodeData) {
       >
         {data.title}
       </p>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <SingleFileUploadNodeUi status={data.status ?? "idle"} />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{data.description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <SingleFileUploadNodeUi
+        status={data.status ?? "idle"}
+        description={data.description}
+      />
+
       <Handle
         id="output.0"
         type="source"
@@ -49,30 +73,41 @@ function SingleFileUploadNode({ data }: NodeData) {
 
 export function SingleFileUploadNodeUi({
   status,
+  description,
   size = 60,
 }: {
   status: string;
+  description?: string;
   size?: number;
 }) {
   return (
-    <div
-      className={clsx(
-        "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
-        {
-          "bg-white": status === "idle",
-          "bg-green-100": status === "ready",
-          "bg-gray-100 animate-pulse": status === "pending",
-        }
-      )}
-    >
-      <Upload
-        style={{
-          width: size,
-          height: size,
-          color: "black",
-        }}
-      />
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={clsx(
+              "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
+              {
+                "bg-white": status === "idle",
+                "bg-green-100": status === "ready",
+                "bg-gray-100 animate-pulse": status === "pending",
+              }
+            )}
+          >
+            <Upload
+              style={{
+                width: size,
+                height: size,
+                color: "black",
+              }}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{description}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 

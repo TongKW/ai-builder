@@ -106,6 +106,7 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     const fileUploadLambdaIntegration = new apigateway.LambdaIntegration(
       fileUploadBlock
     );
+    fileUploadResource.addMethod("GET", fileUploadLambdaIntegration);
     fileUploadResource.addMethod("POST", fileUploadLambdaIntegration);
     lambdaToS3Policy(fileUploadBlock, "ai-pipeline-builder-sandbox");
 
@@ -133,7 +134,7 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     const fileDownloadLambdaIntegration = new apigateway.LambdaIntegration(
       fileDownloadBlock
     );
-    fileDownloadResource.addMethod("POST", fileDownloadLambdaIntegration);
+    fileDownloadResource.addMethod("GET", fileDownloadLambdaIntegration);
     lambdaToS3Policy(fileDownloadBlock, "ai-pipeline-builder-sandbox");
 
     // ==========================================================================================

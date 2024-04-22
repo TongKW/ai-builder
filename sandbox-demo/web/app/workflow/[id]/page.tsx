@@ -1,4 +1,6 @@
+import { isValidWorkflowId } from "@/lib/format/uuid";
 import Workflow from "./_components/workflow";
+import { redirect } from "next/navigation";
 
 export default async function WorkflowPage({
   params,
@@ -7,6 +9,9 @@ export default async function WorkflowPage({
 }) {
   // 1: get the workflow id from param
   const { id: workflowId } = params;
+  if (!isValidWorkflowId(workflowId)) {
+    redirect("/404");
+  }
 
   // 2: retrieve the workflow yaml file. if doesn't exists, then generate a new one.
   const result = await fetch(

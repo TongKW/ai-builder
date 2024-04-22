@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import isEqual from "lodash/isEqual";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -9,17 +10,20 @@ import ReactFlow, {
   Controls,
   updateEdge,
 } from "reactflow";
-
 import "reactflow/dist/base.css";
 
 import { useDebouncedCallback } from "use-debounce";
 import { NodeSidePanel } from "@/components/panel/node-select";
 import { reactFlowNodeTypes } from "@/components/nodes/data";
-import { validateEdge } from "@/components/nodes/utils/flow-graph/validate-edge";
-import { assignNodesDataIO } from "@/components/nodes/utils/flow-graph/nodes-data-io";
+import { validateEdge } from "@/lib/nodes/flow-graph/validate-edge";
+import { assignNodesDataIO } from "@/lib/nodes/flow-graph/nodes-data-io";
 import { reactFlowToYaml } from "@/lib/parser/react-flow-to-yaml";
-import { YamlDebugPanel } from "@/components/panel/yaml-debug";
-import { SavePanel } from "@/components/panel/save";
+import { WorkflowDebugPanel } from "@/components/panel/workflow-debug";
+import { WorkflowSavePanel } from "@/components/panel/workflow-save";
+import { WorkflowRunPanel } from "@/components/panel/workflow-run";
+import { saveWorkflow } from "@/lib/api/save-workflow";
+import { sleep } from "@/lib/functions/sleep";
+import WorkflowContext from "../../../../lib/contexts/workflow-context";
 
 export default function Workflow({
   workflowId,
@@ -38,11 +42,23 @@ export default function Workflow({
   };
 
   const edgeUpdateSuccessful = useRef(true);
+  const hasSinceEdited = useRef(false);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
   const [workflowSrc, setWorkflowSrc] = useState(initWorkflowSrc);
 
   const [isEdited, setEdited] = useState(false);
+  const [isRunning, setRunning] = useState(false);
+
+  const onWorkflowRun = async () => {
+    // TODO: finish this
+    await sleep(5000);
+  };
+
+  const onWorkflowSave = async () => {
+    await saveWorkflow({ workflowId, workflowSrc, nodes, edges });
+  };
 
   // Create a debounced function that will be called after 1 second of inactivity
   const debouncedUpdate = useDebouncedCallback(
@@ -56,14 +72,23 @@ export default function Workflow({
       const yamlStr = reactFlowToYaml(nodes, edges);
       setWorkflowSrc(yamlStr);
 
-      // Update yaml `unsaved` state
+      // update unsaved changes
+      if (
+        !hasSinceEdited.current &&
+        isEqual(nodes, initNodes) &&
+        isEqual(edges, initEdges) &&
+        yamlStr === initWorkflowSrc
+      ) {
+        return;
+      }
+      hasSinceEdited.current = true;
       setEdited(true);
     },
     500 // delay in milliseconds
   );
 
   // Effect that triggers the debounced function on changes to nodes or edges
-  React.useEffect(() => {
+  useEffect(() => {
     debouncedUpdate();
   }, [nodes, edges, debouncedUpdate]);
 
@@ -105,37 +130,49 @@ export default function Workflow({
   );
 
   return (
-    <div className="flex flex-col w-screen h-screen">
-      <NodeSidePanel
-        onNodeCreate={(node: any) => setNodes((nodes) => [...nodes, node])}
-      />
-      <YamlDebugPanel yamlSrc={workflowSrc} />
-      <SavePanel
-        isEdited={isEdited}
-        setEdited={setEdited}
-        workflowId={workflowId}
-        workflowSrc={workflowSrc}
-        nodes={nodes}
-        edges={edges}
-      />
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onEdgeUpdate={onEdgeUpdate}
-        onEdgeUpdateStart={onEdgeUpdateStart}
-        onEdgeUpdateEnd={onEdgeUpdateEnd}
-        onConnect={onConnect}
-        nodeTypes={reactFlowNodeTypes}
-        defaultEdgeOptions={defaultEdgeOptions}
-        // fitView
-        // contentEditable={} // TODO: turn to false when workflow is running
-        className="bg-teal-50 h-100 w-100"
-      >
-        <MiniMap />
-        <Controls />
-      </ReactFlow>
-    </div>
+    <WorkflowContext.Provider value={{ workflowId }}>
+      <div className="flex flex-col w-screen h-screen">
+        <NodeSidePanel
+          onNodeCreate={(node: any) => {
+            setNodes((nodes) => [...nodes, node]);
+          }}
+        />
+        <WorkflowDebugPanel yamlSrc={workflowSrc} />
+        <WorkflowRunPanel
+          isRunning={isRunning}
+          isEdited={isEdited}
+          setEdited={setEdited}
+          setRunning={setRunning}
+          onWorkflowRun={onWorkflowRun}
+          onWorkflowSave={onWorkflowSave}
+        />
+        <WorkflowSavePanel
+          isRunning={isRunning}
+          isEdited={isEdited}
+          setEdited={setEdited}
+          onWorkflowSave={onWorkflowSave}
+        />
+        <ReactFlow
+          // fitView
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onEdgeUpdate={onEdgeUpdate}
+          onEdgeUpdateStart={onEdgeUpdateStart}
+          onEdgeUpdateEnd={onEdgeUpdateEnd}
+          onConnect={onConnect}
+          nodeTypes={reactFlowNodeTypes}
+          defaultEdgeOptions={defaultEdgeOptions}
+          contentEditable={!isRunning}
+          nodesConnectable={!isRunning}
+          nodesDraggable={!isRunning}
+          className="bg-teal-50 h-100 w-100"
+        >
+          <MiniMap />
+          <Controls />
+        </ReactFlow>
+      </div>
+    </WorkflowContext.Provider>
   );
 }

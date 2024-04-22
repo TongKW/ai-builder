@@ -1,22 +1,17 @@
 import clsx from "clsx";
 
 export function Spinner(props: {
-  size?: number;
+  // size?: number;
   bgColor?: string;
   fillColor?: string;
   classes?: string;
 }) {
-  const {
-    size = 3,
-    bgColor = "#aaaaaa",
-    fillColor = "#e5e5e5",
-    classes,
-  } = props;
+  const { bgColor = "#aaaaaa", fillColor = "#e5e5e5", classes } = props;
   return (
     <div role="status">
       <svg
         aria-hidden="true"
-        className={clsx(`inline w-${size} h-${size} animate-spin`, classes)}
+        className={clsx(`inline w-3 h-3 animate-spin`, classes)}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

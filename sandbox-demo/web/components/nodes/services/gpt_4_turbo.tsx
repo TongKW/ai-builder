@@ -23,16 +23,10 @@ function Gpt4TurboNode({ data }: NodeData) {
       >
         {data.title}
       </p>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Gpt4TurboNodeUi status={data.status ?? "idle"} />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{data.description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Gpt4TurboNodeUi
+        status={data.status ?? "idle"}
+        description={data.description}
+      />
 
       <Handle
         id="input.0"
@@ -63,29 +57,40 @@ function Gpt4TurboNode({ data }: NodeData) {
 
 export function Gpt4TurboNodeUi({
   status,
+  description,
   size = 80,
 }: {
   status: string;
+  description?: string;
   size?: number;
 }) {
   return (
-    <div
-      className={clsx(
-        "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
-        {
-          "bg-white": status === "idle",
-          "bg-green-100": status === "ready",
-          "bg-gray-100 animate-pulse": status === "pending",
-        }
-      )}
-    >
-      <Image
-        width={size}
-        height={size}
-        src={"/node_icons/gpt_4_turbo.png"}
-        alt="gpt_4_turbo"
-      />
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            className={clsx(
+              "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
+              {
+                "bg-white": status === "idle",
+                "bg-green-100": status === "ready",
+                "bg-gray-100 animate-pulse": status === "pending",
+              }
+            )}
+          >
+            <Image
+              width={size}
+              height={size}
+              src={"/node_icons/gpt_4_turbo.png"}
+              alt="gpt_4_turbo"
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{description}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
