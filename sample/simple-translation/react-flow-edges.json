@@ -1,0 +1,20 @@
+[
+  {
+    "animated": true,
+    "type": "bazier",
+    "source": "single_file_upload_txt_118d10d7a7d849d6b1b481ea34ba5848",
+    "sourceHandle": "output.0",
+    "target": "gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409",
+    "targetHandle": "input.0",
+    "id": "reactflow__edge-single_file_upload_txt_118d10d7a7d849d6b1b481ea34ba5848output.0-gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409input.0"
+  },
+  {
+    "animated": true,
+    "type": "bazier",
+    "source": "gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409",
+    "sourceHandle": "output.0",
+    "target": "single_file_download_txt_334b512a128c463c84037fdefd2666e1",
+    "targetHandle": "input.0",
+    "id": "reactflow__edge-gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409output.0-single_file_download_txt_334b512a128c463c84037fdefd2666e1input.0"
+  }
+]

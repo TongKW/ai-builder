@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import { Gpt4TurboNodeSelect, Gpt4TurboNodeUi } from "./services/gpt_4_turbo";
-import { reactFlowNodeGenerate } from "./data";
-import { SingleFileUploadNodeSelect } from "./services/single_file_upload";
-import { SingleFileDownloadNodeSelect } from "./services/single_file_download";
+import { Gpt4TurboNodeSelect } from "../nodes/services/gpt_4_turbo";
+import { reactFlowNodeGenerate } from "../nodes/data";
+import { SingleFileUploadNodeSelect } from "../nodes/services/single_file_upload";
+import { SingleFileDownloadNodeSelect } from "../nodes/services/single_file_download";
 
 type NodeSelectType = ({
   onClick,
@@ -52,11 +52,11 @@ export function NodeSidePanel({
         <Menu className="h-4 w-4" />
       </Button>
       <div
-        className={`bg-white w-[30%] w-40 h-full p-5 z-[999] fixed inset-y-0 left-0 pt-24 transform ${
+        className={`bg-white w-[30%] w-40 h-full p-5 z-[999] fixed inset-y-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-300 ease-in-out shadow-md`}
       >
-        <p className="text-black pb-2">Add node</p>
+        <p className="text-sm pb-2">Add node</p>
         <div className="flex flex-wrap gap-4">
           {availableNodeKeys.map((key, index) => (
             <NodeSelect key={`${key}_${index}`} nodeKey={key} />

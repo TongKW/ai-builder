@@ -1,16 +1,16 @@
 nodes:
-  - id: node_id_1
+  - id: single_file_upload_txt_118d10d7a7d849d6b1b481ea34ba5848
     key: single_file_upload
     title: "File Upload"
-    description: "Upload and store a file."
+    description: "Upload and store a text file."
     status: idle
     output:
       - order: 0
         type: text
-        key: data_id_1.txt
+        key: 311f6d5418144a14a804acbf6388a95b.txt
         status: idle
   
-  - id: node_id_2
+  - id: gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409
     key: gpt_4_turbo
     parameters:
       - response_in_json: true
@@ -18,7 +18,7 @@ nodes:
         - role: system
           content: "You will be provided with a large chunk of text, and your task is to translate the text from English to Traditional Chinese. Return the translated text as output only."
         - role: user
-          content: {{ input.0 }}
+          content: "{{ input.0 }}"
     title: "Translation (English -> Traditional Chinese)"
     description: "Translate text from English to Traditional Chinese."
     category: "Text Processing"
@@ -27,17 +27,17 @@ nodes:
         type: text
         title: "Input Text"
         description: "Text written in English that is going to be translated to Tranditional Chinese."
-        key: data_id_1.txt
+        key: 311f6d5418144a14a804acbf6388a95b.txt
         status: idle
     output:
       - order: 0
         type: text
         title: "Translated Text"
         description: "Text that translated to Traditional Chinese."
-        key: data_id_2.txt
+        key: 2e8d7daec27448c8949ea1785c8e57d7.txt
         status: idle
 
-  - id: node_id_3
+  - id: single_file_download_txt_334b512a128c463c84037fdefd2666e1
     key: single_file_download
     title: "File Download"
     description: "Download a file."
@@ -45,21 +45,5 @@ nodes:
     input:
       - order: 0
         type: text
-        key: data_id_2.txt
+        key: 2e8d7daec27448c8949ea1785c8e57d7.txt
         status: idle
-
-flows:
-  - from:
-    - node: node_id_1
-      order: 0
-    to:
-    - node: node_id_2
-      order: 0
-
-  - from:
-    - node: node_id_2
-      order: 0
-    to:
-    - node: node_id_3
-      order: 0
-    

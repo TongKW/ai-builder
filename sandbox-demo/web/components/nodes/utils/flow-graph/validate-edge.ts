@@ -1,7 +1,11 @@
 /**
  * This function validate if a to-be created edge is valid, i.e. I/O data type matched
  */
-export function validateEdge(nodes: any, edgeParams: any): boolean {
+export function validateEdge(
+  nodes: any[],
+  edges: any[],
+  edgeParams: any
+): boolean {
   // Extract source and target node IDs from edgeParams
   const { source, target, sourceHandle, targetHandle } = edgeParams;
 
@@ -16,8 +20,17 @@ export function validateEdge(nodes: any, edgeParams: any): boolean {
   const sourceNode = nodes.find((node: any) => node.id === source);
   const targetNode = nodes.find((node: any) => node.id === target);
 
+  // If either node is not found, the edge is invalid
   if (!sourceNode || !targetNode) {
-    // If either node is not found, the edge is invalid
+    return false;
+  }
+
+  // If the target node is already connected with existing input, the edge is invalid
+  if (
+    edges.some(
+      (edge) => targetHandle === edge.targetHandle && target === edge.target
+    )
+  ) {
     return false;
   }
 

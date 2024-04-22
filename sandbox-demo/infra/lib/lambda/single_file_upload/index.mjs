@@ -7,9 +7,15 @@ export async function handler(event) {
   const httpMethod = event.httpMethod;
 
   if (httpMethod === "POST") {
-    const body = JSON.parse(event.body);
-    const filename = body.filename;
-    const workflowId = body.workflow_id;
+    // Functionality: update
+    const { workflowId, nodeId, nodeHandle } = JSON.parse(event.body); // e.g.: handle = "input.1"
+
+    // 1. update config yaml file by changing the status of the data to "ready"
+  } else if (httpMethod === "GET") {
+    // Functionality: get presigned url to upload to s3
+
+    const filename = event.queryStringParameters.key;
+    const workflowId = event.queryStringParameters.workflowId;
 
     if (!filename || !workflowId) throw new Error("Invalid request.");
 

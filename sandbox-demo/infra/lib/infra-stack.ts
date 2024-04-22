@@ -5,6 +5,8 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as path from "path";
 import * as iam from "aws-cdk-lib/aws-iam";
+import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import * as sqs from "aws-cdk-lib/aws-sqs";
 
 export class PipelineAiSandboxInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -18,13 +20,71 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
       }
     );
 
-    const api = new apigateway.RestApi(this, "PipelineAiSandboxApi", {
-      restApiName: "PipelineAiSandbox",
+    // This API will
+    const servicesApi = new apigateway.RestApi(
+      this,
+      "PipelineAiSandboxServicesApi",
+      {
+        restApiName: "PipelineAiSandboxServices",
+      }
+    );
+
+    const services = servicesApi.root.addResource("services");
+    const handler = servicesApi.root.addResource("handler");
+
+    // Part 1: Processor and queue
+    // 1.1: sqs task queue
+    const sandboxControllerTaskQueue = new sqs.Queue(
+      this,
+      "SandboxControllerTaskQueue",
+      {
+        queueName: "pipeline-ai-sandbox-controller-task-queue",
+        visibilityTimeout: cdk.Duration.minutes(5),
+      }
+    );
+
+    // 1.2 lambda function handler
+    const sandboxHandler = new lambda.Function(this, "SandboxHandler", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "lambda", "handler", "src.zip")
+      ),
+      memorySize: 256,
+      handler: "index.handler",
+      timeout: cdk.Duration.minutes(5),
+      environment: {
+        TASK_QUEUE_URL: sandboxControllerTaskQueue.queueUrl,
+      },
     });
+    const sandboxHandlerIntegration = new apigateway.LambdaIntegration(
+      sandboxHandler
+    );
+    handler.addMethod("GET", sandboxHandlerIntegration);
+    handler.addMethod("POST", sandboxHandlerIntegration);
+    handler.addMethod("PUT", sandboxHandlerIntegration);
+    // handler permissions
+    lambdaToS3Policy(sandboxHandler, "ai-pipeline-builder-sandbox"); // s3 permission
+    lambdaToSqsQueuePolicy(sandboxHandler, sandboxControllerTaskQueue); // send message
 
-    const services = api.root.addResource("services");
+    // 1.3 lambda function controller
+    const sandboxController = new lambda.Function(this, "SandboxController", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "lambda", "controller", "src.zip")
+      ),
+      memorySize: 1024,
+      handler: "index.handler",
+      timeout: cdk.Duration.minutes(5),
+      environment: {
+        TASK_QUEUE_URL: sandboxControllerTaskQueue.queueUrl,
+      },
+    });
+    // controller permissions
+    lambdaToS3Policy(sandboxController, "ai-pipeline-builder-sandbox"); // s3 permission
+    subscribeLambdaToSqsQueue(sandboxController, sandboxControllerTaskQueue); // receive message
+    lambdaToSqsQueuePolicy(sandboxController, sandboxControllerTaskQueue); // send message
 
-    // All available sandbox blocks to use:
+    // Part 2: All available sandbox blocks to use:
 
     // ==========================================================================================
     // block - file upload (single_file_upload)
@@ -111,6 +171,7 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
   }
 }
 
+// ============================== Utility function ==============================
 function lambdaToS3Policy(
   lambda: cdk.aws_lambda.Function,
   s3BucketName: string
@@ -125,4 +186,36 @@ function lambdaToS3Policy(
   });
 
   lambda.addToRolePolicy(policyStatement);
+}
+
+function subscribeLambdaToSqsQueue(
+  lambda: cdk.aws_lambda.Function,
+  targetQueue: cdk.aws_sqs.Queue | cdk.aws_sqs.IQueue
+) {
+  // Create Event source to subscribe lambda to SQS work queue
+  lambda.addEventSource(new SqsEventSource(targetQueue));
+
+  // Permission: work queue -> worker
+  lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ["sqs:ReceiveMessage", "sqs:DeleteMessage"],
+      resources: [targetQueue.queueArn],
+    })
+  );
+}
+
+function lambdaToSqsQueuePolicy(
+  lambda: cdk.aws_lambda.Function,
+  queues: cdk.aws_sqs.IQueue[] | cdk.aws_sqs.IQueue
+) {
+  const queueArr = Array.isArray(queues) ? queues : [queues];
+
+  lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ["sqs:SendMessage"],
+      resources: queueArr.map((queue) => queue.queueArn),
+    })
+  );
 }

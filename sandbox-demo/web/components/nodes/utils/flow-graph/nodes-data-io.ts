@@ -33,9 +33,7 @@ export function assignNodesDataIO(nodes: any[], edgeParams: any) {
   }
 
   // Update source's output
-  if (!sourceNode.data.output[sourceOutputIndex].hasOwnProperty("key")) {
-    sourceNode.data.output[sourceOutputIndex].key = dataKey;
-  }
+  sourceNode.data.output[sourceOutputIndex].key = dataKey;
   sourceNode.data.output[sourceOutputIndex].status = "idle";
 
   // Update target's input
@@ -47,15 +45,11 @@ export function assignNodesDataIO(nodes: any[], edgeParams: any) {
       status: "idle",
     };
   } else {
-    if (!targetNode.data.input[targetInputIndex].hasOwnProperty("key")) {
-      targetNode.data.input[targetInputIndex].key = dataKey;
-    }
+    targetNode.data.input[targetInputIndex].key = dataKey;
     targetNode.data.input[targetInputIndex].status = "idle";
   }
 
   return nodes;
 }
 
-export function removeNodeDataIO(nodes: any[], edgeParams: any) {
-  // TODO: finish
-}
+export function removeNodeDataIO(nodes: any[], deletedEdge: any) {}

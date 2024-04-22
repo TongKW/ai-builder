@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -8,18 +8,17 @@ import ReactFlow, {
   MiniMap,
   Controls,
   updateEdge,
-  ConnectionLineType,
-  EdgeChange,
-  NodeChange,
 } from "reactflow";
 
 import "reactflow/dist/base.css";
 
 import { useDebouncedCallback } from "use-debounce";
-import { NodeSidePanel } from "@/components/nodes/panel";
+import { NodeSidePanel } from "@/components/panel/node-select";
 import { reactFlowNodeTypes } from "@/components/nodes/data";
-import { validateEdge } from "@/components/nodes/utils/validateEdge";
-import { assignNodesDataIO } from "@/components/nodes/utils/nodesDataIO";
+import { validateEdge } from "@/components/nodes/utils/flow-graph/validate-edge";
+import { assignNodesDataIO } from "@/components/nodes/utils/flow-graph/nodes-data-io";
+import { reactFlowToYaml } from "@/lib/parser/react-flow-to-yaml";
+import { YamlDebugPanel } from "@/components/panel/yaml-debug";
 
 export default function App() {
   const defaultEdgeOptions = {
@@ -30,6 +29,7 @@ export default function App() {
   const edgeUpdateSuccessful = useRef(true);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [yamlSrc, setYamlSrc] = useState(`nodes: []\nedges:[]`);
 
   // Create a debounced function that will be called after 1 second of inactivity
   const debouncedUpdate = useDebouncedCallback(
@@ -40,7 +40,10 @@ export default function App() {
         edges
       );
       // Implement the logic you want to execute after the debounce period here.
-      // TODO1: generate yaml and update `unsaved` state
+      const yamlStr = reactFlowToYaml(nodes, edges);
+      setYamlSrc(yamlStr);
+
+      // TODO1: update yaml `unsaved` state
     },
     1000 // delay in milliseconds
   );
@@ -52,7 +55,7 @@ export default function App() {
 
   const onConnect = useCallback(
     (params: any) => {
-      if (validateEdge(nodes, params)) {
+      if (validateEdge(nodes, edges, params)) {
         // 1. generate and assign a data id corresponding to the two ends of the connection
         setNodes((nodes) => assignNodesDataIO(nodes, params));
 
@@ -62,28 +65,30 @@ export default function App() {
         });
       }
     },
-    [nodes, setEdges, setNodes]
+    [nodes, edges, setEdges, setNodes]
   );
 
   const onEdgeUpdateStart = useCallback(() => {
     edgeUpdateSuccessful.current = false;
   }, []);
 
-  const onEdgeUpdate = useCallback((oldEdge: any, newConnection: any) => {
-    edgeUpdateSuccessful.current = true;
-    setEdges((els) => updateEdge(oldEdge, newConnection, els));
-  }, []);
+  const onEdgeUpdate = useCallback(
+    (oldEdge: any, newConnection: any) => {
+      edgeUpdateSuccessful.current = true;
+      setEdges((els) => updateEdge(oldEdge, newConnection, els));
+    },
+    [setEdges]
+  );
 
-  const onEdgeUpdateEnd = useCallback((_: any, edge: any) => {
-    if (!edgeUpdateSuccessful.current) {
-      // 1. set edge
-      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-
-      // 2.
-      console.log(edge);
-    }
-    edgeUpdateSuccessful.current = true;
-  }, []);
+  const onEdgeUpdateEnd = useCallback(
+    (_: any, edge: any) => {
+      if (!edgeUpdateSuccessful.current) {
+        setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      }
+      edgeUpdateSuccessful.current = true;
+    },
+    [setEdges]
+  );
 
   return (
     <main className="flex max-h-screen max-w-screen flex-col items-center justify-between">
@@ -91,6 +96,7 @@ export default function App() {
         <NodeSidePanel
           onNodeCreate={(node: any) => setNodes((nodes) => [...nodes, node])}
         />
+        <YamlDebugPanel yamlSrc={yamlSrc} />
         <ReactFlow
           nodes={nodes}
           edges={edges}
