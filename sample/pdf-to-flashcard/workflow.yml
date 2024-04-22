@@ -23,7 +23,7 @@ nodes:
   - id: node_id_3
     key: gpt_4_turbo
     parameters:
-      - response_in_json: true
+      - responseFormatType: "text"
       - messages:
         - role: system
           content: "You will be provided with a large chunk of text, and your task is to generate a list of multiple-choice questions related to the text context. The output format must be json."

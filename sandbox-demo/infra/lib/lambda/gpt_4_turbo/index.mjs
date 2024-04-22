@@ -16,26 +16,36 @@ export async function handler(event) {
 
   if (httpMethod === "POST") {
     const body = JSON.parse(event.body);
+    console.log("Request body: ");
+    console.log(body);
 
     const workflowId = body.workflowId;
+    const inputKeys = body.inputKeys;
     const outputKeys = body.outputKeys;
+    const parameters = body.parameters ?? {};
 
-    if (!workflowId || !outputKeys || !outputKeys.length) {
+    if (!workflowId || !outputKeys || !inputKeys) {
       throw new Error("Invalid request.");
     }
 
     // 1. OpenAI API configurable parameters
-    const messages = body.messages;
-    const responseInJson = body.responseInJson;
+    const messages = parameters.messages ?? [
+      {
+        role: "user",
+        content: "Hello, World.",
+      },
+    ];
+    const responseFormatType = parameters.responseFormatType ?? "text"; // "text" or "json_object"
 
     // 2. Replace placeholders in messages with actual data
-    const regex = /\{\{\s*(\w+)\s*\}\}/g;
     for (let message of messages) {
       message.content = await replacePlaceholders(
         message.content,
         workflowId,
         "ai-pipeline-builder-sandbox",
-        regex
+        inputKeys,
+        outputKeys,
+        /\{\{\s*(\w+\.\d+)\s*\}\}/g // match {{ input.n }}
       );
     }
 
@@ -43,14 +53,14 @@ export async function handler(event) {
     const completion = await openai.chat.completions.create({
       messages: messages,
       model: "gpt-4-turbo",
-      response_in_json: responseInJson,
+      response_format: { type: responseFormatType },
     });
 
     // 3. save output data to s3
     await saveOutputToS3(
       completion.choices[0].message.content,
-      responseInJson,
-      outputKeys[0]
+      responseFormatType === "json_object",
+      `${workflowId}/data/${outputKeys[0]}`
     );
 
     return {
@@ -67,7 +77,7 @@ export async function handler(event) {
   }
 }
 
-async function saveOutputToS3(content, responseInJson, outputFilePath) {
+async function saveOutputToS3(content, responseInJson, key) {
   try {
     // Determine the content to save based on `responseInJson`
     if (responseInJson) {
@@ -78,7 +88,7 @@ async function saveOutputToS3(content, responseInJson, outputFilePath) {
     // Prepare the parameters for the PutObjectCommand
     const params = {
       Bucket: "ai-pipeline-builder-sandbox", // S3 bucket name
-      Key: outputFilePath, // File path in S3
+      Key: key, // File path in S3
       Body: content, // Data to be saved
       ContentType: responseInJson ? "application/json" : "application/text", // Assuming JSON, change as necessary
     };
@@ -94,13 +104,21 @@ async function saveOutputToS3(content, responseInJson, outputFilePath) {
   }
 }
 
-async function replacePlaceholders(text, workflowId, bucketName, regex) {
-  return text.replace(regex, async (match, dataId) => {
+async function replacePlaceholders(
+  text,
+  workflowId,
+  bucketName,
+  inputKeys,
+  outputKeys,
+  regex
+) {
+  return text.replace(regex, async (match, group) => {
     try {
+      const key = getGroupCorrespondingKey(group, inputKeys, outputKeys);
       const dataResponse = await s3.send(
         new GetObjectCommand({
           Bucket: bucketName,
-          Key: `${workflowId}/${dataId}.txt`,
+          Key: `${workflowId}/data/${key}`,
         })
       );
       const fileContent = await streamToString(dataResponse.Body);
@@ -110,6 +128,18 @@ async function replacePlaceholders(text, workflowId, bucketName, regex) {
       return match; // return the original placeholder if there's an error
     }
   });
+}
+
+function getGroupCorrespondingKey(group, inputKeys, outputKeys) {
+  const type = group.split(".")[0];
+  const index = parseInt(group.split(".")[1]);
+  if (type === "input") {
+    return inputKeys[index];
+  } else if (type === "output") {
+    return outputKeys[index];
+  } else {
+    throw new Error("Unknown type.");
+  }
 }
 
 function streamToString(stream) {

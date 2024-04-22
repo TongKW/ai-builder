@@ -19,6 +19,13 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
         parameterName: "ai-pipeline-builder-sandbox-openapi-key",
       }
     );
+    const sandboxApiEndpointParam = ssm.StringParameter.fromStringParameterAttributes(
+      this,
+      "SandboxApiEndpointParameter",
+      {
+        parameterName: "ai-pipeline-builder-sandbox-api-endpoint",
+      }
+    );
 
     // This API will
     const servicesApi = new apigateway.RestApi(
@@ -77,6 +84,7 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
       timeout: cdk.Duration.minutes(5),
       environment: {
         TASK_QUEUE_URL: sandboxControllerTaskQueue.queueUrl,
+        SANDBOX_API: sandboxApiEndpointParam.stringValue,
       },
     });
     // controller permissions

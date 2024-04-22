@@ -81,10 +81,15 @@ export async function handler(event) {
   } else if (httpMethod === "POST") {
     // Functionality: Run the workflow
 
-    const { workflowSrc, workflowId } = JSON.parse(event.body);
-    if (!workflowSrc || !workflowId) {
+    const { workflowId } = JSON.parse(event.body);
+    if (!workflowId) {
       throw new Error("Invalid request.");
     }
+
+    const workflowSrc = await getContentFromS3(`${workflowId}/workflow.yml`, {
+      defaultString: `nodes: []\nedges: []`,
+      contentType: "text/yaml",
+    });
 
     try {
       // 1. Parse the workflowSrc file. If it is not a valid yaml file, throw error.

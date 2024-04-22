@@ -27,6 +27,5 @@ export function updateNodesStatus(nodes: any[], workflowSrc: string) {
       });
     }
   });
-
   return nodes;
 }

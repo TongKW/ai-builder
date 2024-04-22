@@ -24,6 +24,11 @@ import { WorkflowRunPanel } from "@/components/panel/workflow-run";
 import { saveWorkflow } from "@/lib/api/save-workflow";
 import { sleep } from "@/lib/functions/sleep";
 import WorkflowContext from "../../../../lib/contexts/workflow-context";
+import { getWorkflow } from "@/lib/api/get-workflow";
+import { updateNodesStatus } from "@/lib/parser/update-node-status";
+import { checkWorkflowRunning } from "@/lib/parser/check-workflow-running";
+import { runWorkflow } from "@/lib/api/run-workflow";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Workflow({
   workflowId,
@@ -42,7 +47,6 @@ export default function Workflow({
   };
 
   const edgeUpdateSuccessful = useRef(true);
-  const hasSinceEdited = useRef(false);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
@@ -52,8 +56,41 @@ export default function Workflow({
   const [isRunning, setRunning] = useState(false);
 
   const onWorkflowRun = async () => {
-    // TODO: finish this
-    await sleep(5000);
+    setRunning(true); // Set isRunning state to true to indicate the workflow is running
+
+    // 1. Push to trigger pipeline run queue
+    try {
+      await runWorkflow(workflowId);
+    } catch (error) {
+      console.log(`runWorkflow error: `, runWorkflow);
+    }
+
+    // 2. Trigger a poll to keep update states
+    const pollInterval = setInterval(async () => {
+      try {
+        const { workflowSrc: updatedWorkflowSrc } = await getWorkflow(
+          workflowId
+        );
+        console.log(`updatedWorkflowSrc = `, updatedWorkflowSrc);
+        const updatedNodes = updateNodesStatus(nodes, updatedWorkflowSrc);
+
+        setNodes(updatedNodes);
+        setWorkflowSrc(updatedWorkflowSrc);
+
+        if (!checkWorkflowRunning(updatedWorkflowSrc)) {
+          clearInterval(pollInterval); // Stop polling when the workflow is not running anymore
+          setRunning(false); // Reset the running state
+          toast({
+            title: "Finished workflow.",
+            description: "You can click on output block to download file.",
+          });
+        }
+      } catch (error) {
+        console.error("Error during workflow status polling:", error);
+        clearInterval(pollInterval);
+        setRunning(false); // Ensure running state is reset on error
+      }
+    }, 2500); // Adjust polling interval as needed
   };
 
   const onWorkflowSave = async () => {
@@ -69,19 +106,17 @@ export default function Workflow({
         edges
       );
       // Implement the logic you want to execute after the debounce period here.
-      const yamlStr = reactFlowToYaml(nodes, edges, initWorkflowSrc);
+      const yamlStr = reactFlowToYaml(nodes, edges);
       setWorkflowSrc(yamlStr);
 
       // update unsaved changes
       if (
-        !hasSinceEdited.current &&
         isEqual(nodes, initNodes) &&
         isEqual(edges, initEdges) &&
         yamlStr === initWorkflowSrc
       ) {
         return;
       }
-      hasSinceEdited.current = true;
       setEdited(true);
     },
     500 // delay in milliseconds

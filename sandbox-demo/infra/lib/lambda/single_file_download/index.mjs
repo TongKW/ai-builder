@@ -41,6 +41,13 @@ export async function handler(event) {
         }),
       };
     }
+  } else if (httpMethod === "POST") {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "Successful request.",
+      }),
+    };
   } else {
     return {
       statusCode: 405,

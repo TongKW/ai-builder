@@ -37,6 +37,10 @@ function Gpt4TurboNode({ data }: NodeData) {
           backgroundColor: dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
           animation:
             data.input[0].status === "ready" ? "pulse 1s infinite" : undefined,
+          boxShadow:
+            data.input[0].status === "ready"
+              ? "0 0 20px rgba(252, 211, 77, 1.0)"
+              : undefined,
         }}
       >
         <MoveDown className="pointer-events-none w-4 h-4" />
@@ -51,6 +55,10 @@ function Gpt4TurboNode({ data }: NodeData) {
           backgroundColor: dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
           animation:
             data.output[0].status === "ready" ? "pulse 1s infinite" : undefined,
+          boxShadow:
+            data.output[0].status === "ready"
+              ? "0 0 20px rgba(252, 211, 77, 1.0)"
+              : undefined,
         }}
       >
         <MoveDown className="pointer-events-none w-4 h-4" />

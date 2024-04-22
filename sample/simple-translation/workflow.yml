@@ -13,7 +13,7 @@ nodes:
   - id: gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409
     key: gpt_4_turbo
     parameters:
-      - response_in_json: true
+      - responseFormatType: "text"
       - messages:
         - role: system
           content: "You will be provided with a large chunk of text, and your task is to translate the text from English to Traditional Chinese. Return the translated text as output only."

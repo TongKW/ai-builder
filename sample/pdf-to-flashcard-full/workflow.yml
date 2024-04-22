@@ -42,7 +42,7 @@ nodes:
     loop: true
     rag: rag_id_1 # RAG to be implemented
     parameters:
-      - response_in_json: true
+      - responseFormatType: "text"
       - messages:
         - role: system
           content: "You will be provided with a chunk of text, and your task is to generate a list of multiple-choice questions related to the text context. The output format must be json."

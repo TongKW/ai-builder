@@ -7,7 +7,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
   gpt_4_turbo: {
     data: {
       title: "GPT 4 Turbo",
-      description: "GPT 4 Turbo LLM developed by OpenAI.",
+      description: "A generic LLM block.",
       category: "Base Model",
       status: "idle",
       input: [

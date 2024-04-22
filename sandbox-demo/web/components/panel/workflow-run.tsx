@@ -55,8 +55,8 @@ export function WorkflowRunPanel({
 
       // Success
       toast({
-        title: "Workflow finished.",
-        description: "You can download the file from any output block.",
+        title: "Workflow started.",
+        description: "The workflow is now being ran.",
       });
       setRunning(false);
     } catch (error) {

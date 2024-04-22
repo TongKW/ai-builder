@@ -59,12 +59,6 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
           },
         });
 
-        // const newWorkflowSrc = await updateSingleUploadDataStatus({
-        //   workflowId,
-        //   nodeId,
-        //   nodeHandle: "output.0",
-        // });
-        // setWorkflowSrc(newWorkflowSrc);
         setNodes((nodes: any[]) =>
           nodes.map((node) => {
             if (node.id === nodeId) {
@@ -94,7 +88,7 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
         });
       }
     },
-    [workflowId, nodeId, data.output]
+    [workflowId, nodeId, setNodes, data.output]
   );
 
   const onDrop = useCallback(
@@ -142,6 +136,10 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
           backgroundColor: dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
           animation:
             data.output[0].status === "ready" ? "pulse 1s infinite" : undefined,
+          boxShadow:
+            data.output[0].status === "ready"
+              ? "0 0 20px rgba(252, 211, 77, 1.0)"
+              : undefined,
         }}
       >
         <MoveDown className="pointer-events-none w-4 h-4" />
