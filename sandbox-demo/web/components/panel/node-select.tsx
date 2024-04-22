@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Gpt4TurboNodeSelect } from "../nodes/services/gpt_4_turbo";
 import { reactFlowNodeGenerate } from "../nodes/data";
 import { SingleFileUploadNodeSelect } from "../nodes/services/single_file_upload";
@@ -46,17 +46,17 @@ export function NodeSidePanel({
       <Button
         variant="outline"
         size="icon"
-        className="z-[99999] fixed top-10 left-10 shadow-lg"
+        className="z-[99999] fixed top-[30px] left-[30px] shadow-lg"
         onClick={toggleSidebar}
       >
-        <Menu className="h-4 w-4" />
+        <Plus className="h-4 w-4" />
       </Button>
       <div
         className={`bg-white w-[30%] w-40 h-full p-5 z-[999] fixed inset-y-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out shadow-md`}
       >
-        <p className="text-sm pb-2">Add node</p>
+        <p className="text-sm pb-3">Add nodes</p>
         <div className="flex flex-wrap gap-4">
           {availableNodeKeys.map((key, index) => (
             <NodeSelect key={`${key}_${index}`} nodeKey={key} />

@@ -20,7 +20,7 @@ export async function handler(event) {
     if (!filename || !workflowId) throw new Error("Invalid request.");
 
     // Return a pre-signed url to the user for file upload with permission
-    const objectKey = `${workflowId}/${filename}`;
+    const objectKey = `${workflowId}/data/${filename}`;
     const bucketName = "ai-pipeline-builder-sandbox";
 
     const command = new PutObjectCommand({

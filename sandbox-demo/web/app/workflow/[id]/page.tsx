@@ -1,6 +1,29 @@
-export default function Workflow() {
-  // TODO 1: get the workflow id from param
-  // TODO 2: retrieve the workflow yaml file. if doesn't exists, then generate a new one.
-  // TODO 3: convert the workflow yaml back to react flow json (nodes and edges), and update states.
-  return <></>;
+import Workflow from "./_components/workflow";
+
+export default async function WorkflowPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  // 1: get the workflow id from param
+  const { id: workflowId } = params;
+
+  // 2: retrieve the workflow yaml file. if doesn't exists, then generate a new one.
+  const result = await fetch(
+    `${process.env.SANDBOX_API}/handler?workflowId=${workflowId}`,
+    {
+      method: "GET",
+      cache: "no-store", // This prevents the use of the cache
+    }
+  );
+  const { workflowSrc, nodes, edges } = await result.json();
+
+  return (
+    <Workflow
+      workflowId={workflowId}
+      initWorkflowSrc={workflowSrc}
+      initNodes={nodes}
+      initEdges={edges}
+    />
+  );
 }

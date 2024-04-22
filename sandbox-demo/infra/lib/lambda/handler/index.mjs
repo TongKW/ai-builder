@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/client-s3";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import yaml from "js-yaml";
-import { Readable } from "stream";
 
 const s3 = new S3Client({ region: "us-west-1" });
 const sqs = new SQSClient({ region: "us-west-1" });
@@ -17,59 +16,63 @@ export async function handler(event) {
     const workflowId = event.queryStringParameters.workflowId;
     const initWorkflowSrc = `nodes: []\nedges: []`;
 
-    try {
-      const s3Params = {
-        Bucket: "ai-pipeline-builder-sandbox",
-        Key: `${workflowId}/workflow.yml`,
-      };
+    const [workflowSrc, nodes, edges] = await Promise.all([
+      getContentFromS3(`${workflowId}/workflow.yml`, {
+        defaultString: initWorkflowSrc,
+        contentType: "text/yaml",
+      }),
+      getContentFromS3(`${workflowId}/ui/nodes.json`, {
+        defaultString: "[]",
+        contentType: "application/json",
+      }),
+      getContentFromS3(`${workflowId}/ui/edges.json`, {
+        defaultString: "[]",
+        contentType: "application/json",
+      }),
+    ]);
 
-      let workflowSrc;
-      try {
-        // 1. Try to get the YAML config file from S3
-        const { Body } = await s3.send(new GetObjectCommand(s3Params));
-        workflowSrc = await streamToString(Body);
-      } catch (error) {
-        if (error.name === "NoSuchKey") {
-          // 2.1: File not found, upload initWorkflowSrc to S3
-          workflowSrc = initWorkflowSrc;
-          const putParams = {
-            ...s3Params,
-            Body: workflowSrc,
-            ContentType: "text/yaml",
-          };
-          await s3.send(new PutObjectCommand(putParams));
-        } else {
-          throw error; // Re-throw error if it's not a missing key error
-        }
-      }
-
-      // 3. Return the workflowSrc in the API response
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ workflowSrc }),
-      };
-    } catch (error) {
-      console.error("Error handling the GET request:", error);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ message: "Internal Server Error" }),
-      };
-    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "Successful request.",
+        workflowSrc: workflowSrc,
+        nodes: JSON.parse(nodes),
+        edges: JSON.parse(edges),
+      }),
+    };
   } else if (httpMethod === "PUT") {
     // Functionality: Update the workflow to s3
-
-    const { workflowSrc, workflowId } = JSON.parse(event.body);
-    if (!workflowSrc || !workflowId) {
+    const { nodes, edges, workflowSrc, workflowId } = JSON.parse(event.body);
+    if (!nodes || !edges || !workflowSrc || !workflowId) {
       throw new Error("Invalid request.");
     }
 
-    const putParams = {
-      Bucket: "ai-pipeline-builder-sandbox",
-      Key: `${workflowId}/workflow.yml`,
-      Body: workflowSrc,
-      ContentType: "text/yaml",
-    };
-    await s3.send(new PutObjectCommand(putParams));
+    await Promise.all([
+      s3.send(
+        new PutObjectCommand({
+          Bucket: "ai-pipeline-builder-sandbox",
+          Key: `${workflowId}/workflow.yml`,
+          Body: workflowSrc,
+          ContentType: "text/yaml",
+        })
+      ),
+      s3.send(
+        new PutObjectCommand({
+          Bucket: "ai-pipeline-builder-sandbox",
+          Key: `${workflowId}/ui/nodes.json`,
+          Body: JSON.stringify(nodes),
+          ContentType: "application/json",
+        })
+      ),
+      s3.send(
+        new PutObjectCommand({
+          Bucket: "ai-pipeline-builder-sandbox",
+          Key: `${workflowId}/ui/edges.json`,
+          Body: JSON.stringify(edges),
+          ContentType: "application/json",
+        })
+      ),
+    ]);
 
     return {
       statusCode: 200,
@@ -140,4 +143,37 @@ async function streamToString(stream) {
     stream.on("error", reject);
     stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
   });
+}
+
+async function getContentFromS3(key, params) {
+  const { defaultString, contentType } = params;
+
+  let result;
+
+  try {
+    // 1. Try to get the YAML config file from S3
+    const { Body } = await s3.send(
+      new GetObjectCommand({
+        Bucket: "ai-pipeline-builder-sandbox",
+        Key: key,
+      })
+    );
+    result = await streamToString(Body);
+  } catch (error) {
+    if (error.name === "NoSuchKey") {
+      // 2.1: File not found, upload initWorkflowSrc to S3
+      const putParams = {
+        Bucket: "ai-pipeline-builder-sandbox",
+        Key: key,
+        Body: defaultString,
+        ContentType: contentType,
+      };
+      await s3.send(new PutObjectCommand(putParams));
+      result = defaultString;
+    } else {
+      throw error; // Re-throw error if it's not a missing key error
+    }
+  }
+
+  return result;
 }
