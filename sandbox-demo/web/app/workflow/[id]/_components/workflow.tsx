@@ -65,8 +65,7 @@ export default function Workflow({
       console.log(`runWorkflow error: `, runWorkflow);
     }
 
-    // 2. Trigger a poll to keep update states
-    const pollInterval = setInterval(async () => {
+    while (true) {
       try {
         const { workflowSrc: updatedWorkflowSrc } = await getWorkflow(
           workflowId
@@ -78,19 +77,20 @@ export default function Workflow({
         setWorkflowSrc(updatedWorkflowSrc);
 
         if (!checkWorkflowRunning(updatedWorkflowSrc)) {
-          clearInterval(pollInterval); // Stop polling when the workflow is not running anymore
-          setRunning(false); // Reset the running state
           toast({
             title: "Finished workflow.",
             description: "You can click on output block to download file.",
           });
+          break;
         }
       } catch (error) {
         console.error("Error during workflow status polling:", error);
-        clearInterval(pollInterval);
-        setRunning(false); // Ensure running state is reset on error
+        break;
       }
-    }, 2500); // Adjust polling interval as needed
+      await sleep(3500);
+    }
+
+    setRunning(false);
   };
 
   const onWorkflowSave = async () => {
@@ -110,14 +110,9 @@ export default function Workflow({
       setWorkflowSrc(yamlStr);
 
       // update unsaved changes
-      if (
-        isEqual(nodes, initNodes) &&
-        isEqual(edges, initEdges) &&
-        yamlStr === initWorkflowSrc
-      ) {
-        return;
+      if (yamlStr !== initWorkflowSrc) {
+        setEdited(true);
       }
-      setEdited(true);
     },
     500 // delay in milliseconds
   );
@@ -202,7 +197,7 @@ export default function Workflow({
           contentEditable={!isRunning}
           nodesConnectable={!isRunning}
           nodesDraggable={!isRunning}
-          className="bg-teal-50 h-100 w-100"
+          className="bg-teal-50 h-100 w-100 select-none"
         >
           <MiniMap />
           <Controls />

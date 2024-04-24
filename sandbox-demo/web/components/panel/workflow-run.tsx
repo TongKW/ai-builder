@@ -58,7 +58,6 @@ export function WorkflowRunPanel({
         title: "Workflow started.",
         description: "The workflow is now being ran.",
       });
-      setRunning(false);
     } catch (error) {
       toast({
         variant: "destructive",

@@ -125,10 +125,10 @@ export function SingleFileDownloadNodeUi({
         <TooltipTrigger asChild>
           <div
             className={clsx(
-              "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
+              "flex justify-center items-center relative w-full h-full rounded-md select-none",
               {
-                "bg-white": status === "idle",
-                "bg-green-100": status === "ready",
+                "bg-white hover:bg-gray-100": status === "idle",
+                "bg-green-100 hover:bg-green-200": status === "ready",
                 "bg-gray-100 animate-pulse": status === "pending",
               }
             )}

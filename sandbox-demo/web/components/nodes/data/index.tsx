@@ -61,9 +61,12 @@ export function reactFlowNodeGenerate(
 
   if (reactFlowData[key] === undefined) return undefined;
 
+  // Create a deep copy of the node data to prevent reference issues
+  const nodeDataCopy = JSON.parse(JSON.stringify(reactFlowData[key]));
+
   // Define the node with the generated properties
   const node: ReactFlowNodeData = {
-    ...reactFlowData[key],
+    ...nodeDataCopy,
     id: generateId(), // Generate a UUID for the id
     type: reactFlowDataTypeMap[key] ?? key,
     width: 160,

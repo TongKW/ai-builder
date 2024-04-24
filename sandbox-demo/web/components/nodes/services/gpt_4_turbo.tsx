@@ -14,7 +14,7 @@ import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
 
 function Gpt4TurboNode({ data }: NodeData) {
   return (
-    <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative">
+    <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative select-none">
       <p
         className="text-center absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
         style={{
@@ -82,10 +82,10 @@ export function Gpt4TurboNodeUi({
         <TooltipTrigger asChild>
           <div
             className={clsx(
-              "flex justify-center items-center relative w-full h-full rounded-md hover:bg-gray-100",
+              "flex justify-center items-center relative w-full h-full rounded-md",
               {
-                "bg-white": status === "idle",
-                "bg-green-100": status === "ready",
+                "bg-white hover:bg-gray-100": status === "idle",
+                "bg-green-100 hover:bg-green-200": status === "ready",
                 "bg-gray-100 animate-pulse": status === "pending",
               }
             )}

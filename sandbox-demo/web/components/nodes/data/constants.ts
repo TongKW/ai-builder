@@ -5,6 +5,7 @@ import { NodeData } from ".";
  */
 export const reactFlowData: { [key: string]: NodeData } = {
   gpt_4_turbo: {
+    id: "",
     data: {
       title: "GPT 4 Turbo",
       description: "A generic LLM block.",
@@ -26,6 +27,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
   },
 
   single_file_upload_txt: {
+    id: "",
     data: {
       title: "File Upload (TXT)",
       description: "Upload and store a text file.",
@@ -42,6 +44,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
   },
 
   single_file_upload_pdf: {
+    id: "",
     data: {
       title: "File Upload (PDF)",
       description: "Upload and store a PDF file.",
@@ -58,6 +61,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
   },
 
   single_file_upload_csv: {
+    id: "",
     data: {
       title: "File Upload (CSV)",
       description: "Upload and store a CSV file.",
@@ -74,6 +78,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
   },
 
   single_file_download_txt: {
+    id: "",
     data: {
       title: "File Download (TXT)",
       description: "Download a text file.",
