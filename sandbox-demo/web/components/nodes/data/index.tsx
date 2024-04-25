@@ -34,6 +34,8 @@ export interface NodeDataIO {
   order: number;
   key?: string;
   status?: string;
+  title?: string;
+  description?: string;
 }
 
 export const reactFlowNodeTypes: {

@@ -29,7 +29,7 @@ export function WorkflowDebugPanel({
       <Button
         variant="outline"
         size="icon"
-        className="z-[99999] fixed top-[130px] right-[30px] shadow-lg"
+        className="z-[99999] fixed bottom-[30px] right-[30px] shadow-lg"
         onClick={toggleSidebar}
       >
         <FileCode className="h-4 w-4" />

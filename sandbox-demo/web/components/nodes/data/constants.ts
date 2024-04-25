@@ -15,12 +15,16 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "txt",
           order: 0,
+          title: "input 1",
+          description: "pass input text to form a custom prompt",
         },
       ],
       output: [
         {
           type: "txt",
           order: 0,
+          title: "response",
+          description: "gpt-4-turbo response from chat completion",
         },
       ],
     },
@@ -38,6 +42,8 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "txt",
           order: 0,
+          title: "file output",
+          description: "uploaded text file will output from here",
         },
       ],
     },
@@ -55,6 +61,8 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "pdf",
           order: 0,
+          title: "file output",
+          description: "uploaded pdf file will output from here",
         },
       ],
     },
@@ -72,6 +80,8 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "csv",
           order: 0,
+          title: "file output",
+          description: "uploaded csv file will output from here",
         },
       ],
     },
@@ -88,6 +98,8 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "txt",
           order: 0,
+          title: "file input",
+          description: "right click this block to download the text file",
         },
       ],
       output: [],

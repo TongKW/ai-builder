@@ -1,69 +1,118 @@
 import clsx from "clsx";
-import { MoveDown } from "lucide-react";
+import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { NodeData } from "../data";
 import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { ContextMenuItem } from "@/components/ui/context-menu";
+import { useWorkflowContext } from "@/lib/contexts/workflow-context";
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
+import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
-function Gpt4TurboNode({ data }: NodeData) {
+function Gpt4TurboNode({ id: nodeId, data }: NodeData) {
+  const { setEditingNodeId } = useWorkflowContext();
+
   return (
-    <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative select-none">
-      <p
-        className="text-center absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
-        style={{
-          transform: "translateX(80px) translateX(-50%) translateY(-100%)",
-        }}
-      >
-        {data.title}
-      </p>
-      <Gpt4TurboNodeUi
-        status={data.status ?? "idle"}
-        description={data.description}
-      />
+    <ContextMenuWrapper
+      triggerElement={
+        <div className="rounded-md border-2 border-stone-400 w-40 h-40 relative moving-border">
+          <p
+            className="text-center absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+            style={{
+              transform: "translateX(80px) translateX(-50%) translateY(-100%)",
+            }}
+          >
+            {data.title}
+          </p>
+          <Gpt4TurboNodeUi
+            status={data.status ?? "idle"}
+            description={data.description}
+          />
 
-      <Handle
-        id="input.0"
-        type="target"
-        position={Position.Top}
-        className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
-        style={{
-          backgroundColor: dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
-          animation:
-            data.input[0].status === "ready" ? "pulse 1s infinite" : undefined,
-          boxShadow:
-            data.input[0].status === "ready"
-              ? "0 0 20px rgba(252, 211, 77, 1.0)"
-              : undefined,
-        }}
-      >
-        <MoveDown className="pointer-events-none w-4 h-4" />
-      </Handle>
+          {/** Input.0 */}
+          <TooltipWrapper
+            triggerElement={
+              <Handle
+                id="input.0"
+                type="target"
+                position={Position.Left}
+                className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
+                style={{
+                  backgroundColor:
+                    dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
+                  animation:
+                    data.input[0].status === "ready"
+                      ? "pulse 1s infinite"
+                      : undefined,
+                  boxShadow:
+                    data.input[0].status === "ready"
+                      ? "0 0 20px rgba(252, 211, 77, 1.0)"
+                      : undefined,
+                }}
+              >
+                <p
+                  className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+                  style={{
+                    transform: "translateY(-100%)",
+                  }}
+                >
+                  {data.input[0].title ?? ""}
+                </p>
+                <MoveRight className="pointer-events-none w-4 h-4" />
+              </Handle>
+            }
+            tooltipElement={<p> {data.input[0].description ?? ""}</p>}
+          />
 
-      <Handle
-        id="output.0"
-        type="source"
-        position={Position.Bottom}
-        className="w-6 h-6 !bg-white border-2 border-stone-400 flex items-center justify-center"
-        style={{
-          backgroundColor: dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
-          animation:
-            data.output[0].status === "ready" ? "pulse 1s infinite" : undefined,
-          boxShadow:
-            data.output[0].status === "ready"
-              ? "0 0 20px rgba(252, 211, 77, 1.0)"
-              : undefined,
-        }}
-      >
-        <MoveDown className="pointer-events-none w-4 h-4" />
-      </Handle>
-    </div>
+          {/** output.0 */}
+          <TooltipWrapper
+            triggerElement={
+              <Handle
+                id="output.0"
+                type="source"
+                position={Position.Right}
+                className="w-6 h-6 !bg-white border-2 border-stone-400 flex items-center justify-center relative"
+                style={{
+                  backgroundColor:
+                    dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
+                  animation:
+                    data.output[0].status === "ready"
+                      ? "pulse 1s infinite"
+                      : undefined,
+                  boxShadow:
+                    data.output[0].status === "ready"
+                      ? "0 0 20px rgba(252, 211, 77, 1.0)"
+                      : undefined,
+                }}
+              >
+                <p
+                  className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+                  style={{
+                    transform: "translateY(-100%)",
+                  }}
+                >
+                  {data.output[0].title ?? ""}
+                </p>
+                <MoveRight className="pointer-events-none w-4 h-4" />
+              </Handle>
+            }
+            tooltipElement={<p> {data.output[0].description ?? ""}</p>}
+          />
+        </div>
+      }
+      contextMenuElement={
+        <ContextMenuItem
+          className="cursor-pointer"
+          onClick={() => {
+            console.log(`setEditingNodeId: ${nodeId}`);
+            setEditingNodeId(nodeId);
+          }}
+        >
+          Configuration
+        </ContextMenuItem>
+      }
+    />
   );
 }
 
@@ -77,32 +126,28 @@ export function Gpt4TurboNodeUi({
   size?: number;
 }) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className={clsx(
-              "flex justify-center items-center relative w-full h-full rounded-md",
-              {
-                "bg-white hover:bg-gray-100": status === "idle",
-                "bg-green-100 hover:bg-green-200": status === "ready",
-                "bg-gray-100 animate-pulse": status === "pending",
-              }
-            )}
-          >
-            <Image
-              width={size}
-              height={size}
-              src={"/node_icons/gpt_4_turbo.png"}
-              alt="gpt_4_turbo"
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{description}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <TooltipWrapper
+      triggerElement={
+        <div
+          className={clsx(
+            "flex justify-center items-center relative w-full h-full rounded-md",
+            {
+              "bg-white hover:bg-gray-100": status === "idle",
+              "bg-green-100 hover:bg-green-200": status === "ready",
+              "bg-gray-100 animate-pulse": status === "pending",
+            }
+          )}
+        >
+          <Image
+            width={size}
+            height={size}
+            src={"/node_icons/gpt_4_turbo.png"}
+            alt="gpt_4_turbo"
+          />
+        </div>
+      }
+      tooltipElement={<p>{description}</p>}
+    />
   );
 }
 

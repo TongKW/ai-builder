@@ -27,6 +27,7 @@ export function reactFlowToYaml(
       key: type,
       title: data.title,
       description: data.description,
+      parameter: data.parameter,
       status: initNode ? initNode.status : data.status, // Use initial status if available
     };
 
@@ -40,7 +41,7 @@ export function reactFlowToYaml(
       if (data[io] && data[io].length > 0) {
         simplifiedNode[io] = data[io].map((item: any, index: number) => {
           // Check if initial node data has input/output and use its status if available
-          const initIo =
+          const initIoStatus =
             initNode && initNode[io] && initNode[io][index]
               ? initNode[io][index].status
               : item.status;
@@ -48,7 +49,7 @@ export function reactFlowToYaml(
             order: item.order,
             type: item.type,
             key: item.key,
-            status: initIo, // Use initial io status if available
+            status: initIoStatus, // Use initial io status if available
             ...(item.title ? { title: item.title } : {}),
             ...(item.description ? { description: item.description } : {}),
           };

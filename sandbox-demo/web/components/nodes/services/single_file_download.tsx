@@ -1,21 +1,23 @@
 import clsx from "clsx";
-import { Download, MoveDown } from "lucide-react";
+import { Download, MoveRight } from "lucide-react";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
 import { NodeData } from "../data";
 import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 import { toast } from "@/components/ui/use-toast";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
+import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
-function SingleFileDownloadNode({ data }: NodeData) {
-  const { workflowId } = useWorkflowContext();
+function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
+  const { workflowId, setEditingNodeId } = useWorkflowContext();
 
   const onDownload = async () => {
     if (!data.input[0].key) {
@@ -70,43 +72,75 @@ function SingleFileDownloadNode({ data }: NodeData) {
       });
     }
   };
+
   return (
-    <div
-      className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative"
-      onClick={onDownload}
-    >
-      <p
-        className="text-center absolute pb-2 whitespace-nowrap pointer-events-none"
-        style={{
-          transform: "translateX(80px) translateX(-50%) translateY(-100%)",
-        }}
-      >
-        {data.title}
-      </p>
+    <ContextMenuWrapper
+      triggerElement={
+        <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative">
+          <p
+            className="text-center absolute pb-2 whitespace-nowrap pointer-events-none"
+            style={{
+              transform: "translateX(80px) translateX(-50%) translateY(-100%)",
+            }}
+          >
+            {data.title}
+          </p>
 
-      <SingleFileDownloadNodeUi
-        status={data.status ?? "idle"}
-        description={data.description}
-      />
+          <SingleFileDownloadNodeUi
+            status={data.status ?? "idle"}
+            description={data.description}
+          />
 
-      <Handle
-        id="input.0"
-        type="target"
-        position={Position.Top}
-        className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
-        style={{
-          backgroundColor: dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
-          animation:
-            data.input[0].status === "ready" ? "pulse 1s infinite" : undefined,
-          boxShadow:
-            data.input[0].status === "ready"
-              ? "0 0 20px rgba(252, 211, 77, 1.0)"
-              : undefined,
-        }}
-      >
-        <MoveDown className="pointer-events-none w-4 h-4" />
-      </Handle>
-    </div>
+          {/** input.0 */}
+          <TooltipWrapper
+            triggerElement={
+              <Handle
+                id="input.0"
+                type="target"
+                position={Position.Left}
+                className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
+                style={{
+                  backgroundColor:
+                    dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
+                  animation:
+                    data.input[0].status === "ready"
+                      ? "pulse 1s infinite"
+                      : undefined,
+                  boxShadow:
+                    data.input[0].status === "ready"
+                      ? "0 0 20px rgba(252, 211, 77, 1.0)"
+                      : undefined,
+                }}
+              >
+                <p
+                  className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+                  style={{
+                    transform: "translateY(-100%)",
+                  }}
+                >
+                  {data.input[0].title ?? ""}
+                </p>
+                <MoveRight className="pointer-events-none w-4 h-4" />
+              </Handle>
+            }
+            tooltipElement={<p>{data.input[0].description ?? ""}</p>}
+          />
+        </div>
+      }
+      contextMenuElement={
+        <>
+          <ContextMenuItem className="cursor-pointer" onClick={onDownload}>
+            Download file
+          </ContextMenuItem>
+          <ContextMenuItem
+            className="cursor-pointer"
+            onClick={() => setEditingNodeId(nodeId)}
+          >
+            Configuration
+          </ContextMenuItem>
+        </>
+      }
+    />
   );
 }
 
@@ -120,33 +154,29 @@ export function SingleFileDownloadNodeUi({
   size?: number;
 }) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className={clsx(
-              "flex justify-center items-center relative w-full h-full rounded-md select-none",
-              {
-                "bg-white hover:bg-gray-100": status === "idle",
-                "bg-green-100 hover:bg-green-200": status === "ready",
-                "bg-gray-100 animate-pulse": status === "pending",
-              }
-            )}
-          >
-            <Download
-              style={{
-                width: size,
-                height: size,
-                color: "black",
-              }}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{description}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <TooltipWrapper
+      triggerElement={
+        <div
+          className={clsx(
+            "flex justify-center items-center relative w-full h-full rounded-md select-none",
+            {
+              "bg-white hover:bg-gray-100": status === "idle",
+              "bg-green-100 hover:bg-green-200": status === "ready",
+              "bg-gray-100 animate-pulse": status === "pending",
+            }
+          )}
+        >
+          <Download
+            style={{
+              width: size,
+              height: size,
+              color: "black",
+            }}
+          />
+        </div>
+      }
+      tooltipElement={<p>{description}</p>}
+    />
   );
 }
 

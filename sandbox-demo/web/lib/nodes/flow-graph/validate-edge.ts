@@ -1,5 +1,10 @@
 /**
- * This function validate if a to-be created edge is valid, i.e. I/O data type matched
+ * This function validate if a to-be created edge is valid.
+ *
+ * Conditions:
+ * 1. I/O data type matched
+ * 2.
+ *
  */
 export function validateEdge(
   nodes: any[],

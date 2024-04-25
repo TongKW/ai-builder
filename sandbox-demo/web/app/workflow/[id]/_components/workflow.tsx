@@ -29,6 +29,7 @@ import { updateNodesStatus } from "@/lib/parser/update-node-status";
 import { checkWorkflowRunning } from "@/lib/parser/check-workflow-running";
 import { runWorkflow } from "@/lib/api/run-workflow";
 import { toast } from "@/components/ui/use-toast";
+import { NodeConfigurePanel } from "@/components/panel/node-configure";
 
 export default function Workflow({
   workflowId,
@@ -54,6 +55,10 @@ export default function Workflow({
 
   const [isEdited, setEdited] = useState(false);
   const [isRunning, setRunning] = useState(false);
+
+  const [editingNodeId, setEditingNodeId] = useState("");
+
+  console.log(`editingNodeId = ${editingNodeId}`);
 
   const onWorkflowRun = async () => {
     setRunning(true); // Set isRunning state to true to indicate the workflow is running
@@ -105,7 +110,7 @@ export default function Workflow({
         nodes,
         edges
       );
-      // Implement the logic you want to execute after the debounce period here.
+      // Logic to execute after the debounce period here.
       const yamlStr = reactFlowToYaml(nodes, edges);
       setWorkflowSrc(yamlStr);
 
@@ -161,13 +166,23 @@ export default function Workflow({
   );
 
   return (
-    <WorkflowContext.Provider value={{ workflowId, setWorkflowSrc, setNodes }}>
+    <WorkflowContext.Provider
+      value={{
+        workflowId,
+        setWorkflowSrc,
+        nodes,
+        setNodes,
+        editingNodeId,
+        setEditingNodeId,
+      }}
+    >
       <div className="flex flex-col w-screen h-screen">
         <NodeSidePanel
           onNodeCreate={(node: any) => {
             setNodes((nodes) => [...nodes, node]);
           }}
         />
+        <NodeConfigurePanel />
         <WorkflowDebugPanel yamlSrc={workflowSrc} />
         <WorkflowRunPanel
           isRunning={isRunning}

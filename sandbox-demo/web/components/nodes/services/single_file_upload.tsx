@@ -1,25 +1,19 @@
 import clsx from "clsx";
-import { MoveDown, Upload } from "lucide-react";
+import { MoveRight, Upload } from "lucide-react";
 import React, { memo, useCallback } from "react";
 import { Handle, Position } from "reactflow";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { NodeData, NodeDataIO } from "../data";
+import { NodeData } from "../data";
 import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
 import { toast } from "@/components/ui/use-toast";
-import {
-  getS3PresignedUrl,
-  updateSingleUploadDataStatus,
-} from "@/lib/nodes/infra/s3-data-io";
+import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 import { getFileExtension } from "@/lib/format/file-type";
+import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
+import { ContextMenuItem } from "@radix-ui/react-context-menu";
+import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
 function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
-  const { workflowId, setNodes } = useWorkflowContext();
+  const { workflowId, setNodes, setEditingNodeId } = useWorkflowContext();
 
   const handleFileUpload = useCallback(
     async (file: File) => {
@@ -107,44 +101,74 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
   }, []);
 
   return (
-    <div
-      className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative"
-      onDrop={onDrop}
-      onDragOver={onDragOver}
-    >
-      <p
-        className="text-center absolute min-w-40 pb-2 whitespace-nowrap pointer-events-none"
-        style={{
-          transform: "translateX(80px) translateX(-50%) translateY(-100%)",
-        }}
-      >
-        {data.title}
-      </p>
-      <SingleFileUploadNodeUi
-        status={data.status ?? "idle"}
-        description={data.description}
-      />
+    <ContextMenuWrapper
+      triggerElement={
+        <div
+          className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative"
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+        >
+          <p
+            className="text-center absolute min-w-40 pb-2 whitespace-nowrap pointer-events-none"
+            style={{
+              transform: "translateX(80px) translateX(-50%) translateY(-100%)",
+            }}
+          >
+            {data.title}
+          </p>
+          <SingleFileUploadNodeUi
+            status={data.status ?? "idle"}
+            description={data.description}
+          />
 
-      <Handle
-        id="output.0"
-        type="source"
-        position={Position.Bottom}
-        className={clsx(
-          "w-6 h-6 border-2 border-stone-400 flex items-center justify-center"
-        )}
-        style={{
-          backgroundColor: dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
-          animation:
-            data.output[0].status === "ready" ? "pulse 1s infinite" : undefined,
-          boxShadow:
-            data.output[0].status === "ready"
-              ? "0 0 20px rgba(252, 211, 77, 1.0)"
-              : undefined,
-        }}
-      >
-        <MoveDown className="pointer-events-none w-4 h-4" />
-      </Handle>
-    </div>
+          <TooltipWrapper
+            triggerElement={
+              <Handle
+                id="output.0"
+                type="source"
+                position={Position.Right}
+                className={clsx(
+                  "w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
+                )}
+                style={{
+                  backgroundColor:
+                    dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
+                  animation:
+                    data.output[0].status === "ready"
+                      ? "pulse 1s infinite"
+                      : undefined,
+                  boxShadow:
+                    data.output[0].status === "ready"
+                      ? "0 0 20px rgba(252, 211, 77, 1.0)"
+                      : undefined,
+                }}
+              >
+                <p
+                  className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+                  style={{
+                    transform: "translateY(-100%)",
+                  }}
+                >
+                  {data.output[0].title ?? ""}
+                </p>
+                <MoveRight className="pointer-events-none w-4 h-4" />
+              </Handle>
+            }
+            tooltipElement={<p>{data.output[0].description ?? ""}</p>}
+          />
+        </div>
+      }
+      contextMenuElement={
+        <>
+          <ContextMenuItem
+            className="cursor-pointer"
+            onClick={() => setEditingNodeId(nodeId)}
+          >
+            Configuration
+          </ContextMenuItem>
+        </>
+      }
+    />
   );
 }
 export function SingleFileUploadNodeUi({
@@ -156,50 +180,30 @@ export function SingleFileUploadNodeUi({
   description?: string;
   size?: number;
 }) {
-  // const backgroundStyles: {
-  //   [key: string]: { backgroundColor: string; animation?: string };
-  // } = {
-  //   idle: { backgroundColor: "white" },
-  //   ready: { backgroundColor: "#ccffcc" }, // equivalent to bg-green-100 in Tailwind CSS
-  //   pending: {
-  //     backgroundColor: "#f3f3f3", // equivalent to bg-gray-100 in Tailwind CSS
-  //     animation: "pulse 2s infinite",
-  //   },
-  // };
-
-  // // Set default or current status style
-  // const currentStyle = backgroundStyles[status] || {};
-
-  // console.log(`[SingleFileUploadNodeUi] status = ${status}`);
-
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className={clsx(
-              "flex justify-center items-center relative w-full h-full rounded-md select-none",
-              {
-                "bg-white hover:bg-gray-100": status === "idle",
-                "bg-green-100 hover:bg-green-200": status === "ready",
-                "bg-gray-100 animate-pulse": status === "pending",
-              }
-            )}
-          >
-            <Upload
-              style={{
-                width: size,
-                height: size,
-                color: "black",
-              }}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{description}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <TooltipWrapper
+      triggerElement={
+        <div
+          className={clsx(
+            "flex justify-center items-center relative w-full h-full rounded-md select-none",
+            {
+              "bg-white hover:bg-gray-100": status === "idle",
+              "bg-green-100 hover:bg-green-200": status === "ready",
+              "bg-gray-100 animate-pulse": status === "pending",
+            }
+          )}
+        >
+          <Upload
+            style={{
+              width: size,
+              height: size,
+              color: "black",
+            }}
+          />
+        </div>
+      }
+      tooltipElement={<p>{description}</p>}
+    />
   );
 }
 
