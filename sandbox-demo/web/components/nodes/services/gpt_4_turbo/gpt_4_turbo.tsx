@@ -3,7 +3,7 @@ import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-import { NodeData } from "../data";
+import { NodeData } from "../../data";
 import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
 import { ContextMenuItem } from "@/components/ui/context-menu";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";

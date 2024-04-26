@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
-import Gpt4TurboNode from "@/components/nodes/services/gpt_4_turbo";
+import Gpt4TurboNode from "@/components/nodes/services/gpt_4_turbo/gpt_4_turbo";
+import Gpt4Turbo2InputsNode from "@/components/nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
 import SingleFileUploadNode from "@/components/nodes/services/single_file_upload";
 import SingleFileDownloadNode from "@/components/nodes/services/single_file_download";
 import { MemoExoticComponent } from "react";
@@ -20,6 +21,7 @@ export interface NodeData {
   id: string;
   data: {
     title: string;
+    service: string;
     description?: string;
     category: string;
     status?: string;
@@ -42,6 +44,7 @@ export const reactFlowNodeTypes: {
   [key: string]: MemoExoticComponent<({ data }: NodeData) => JSX.Element>;
 } = {
   gpt_4_turbo: Gpt4TurboNode,
+  gpt_4_turbo_2_inputs: Gpt4Turbo2InputsNode,
   single_file_upload: SingleFileUploadNode,
   single_file_download: SingleFileDownloadNode,
 };

@@ -85,7 +85,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
     gpt4TurboLoadDataToInput(node);
 
     function gpt4TurboLoadDataToInput(node: any) {
-      if (node.type === "gpt_4_turbo") {
+      if (node.data?.service === "gpt_4_turbo") {
         let systemMessage = "";
         let messages = [];
 

@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Gpt4TurboNodeSelect } from "../nodes/services/gpt_4_turbo";
+import { Gpt4TurboNodeSelect } from "../nodes/services/gpt_4_turbo/gpt_4_turbo";
 import { reactFlowNodeGenerate } from "../nodes/data";
 import { SingleFileUploadNodeSelect } from "../nodes/services/single_file_upload";
 import { SingleFileDownloadNodeSelect } from "../nodes/services/single_file_download";
+import { Gpt4Turbo2InputsNodeSelect } from "../nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
 
 type NodeSelectType = ({
   onClick,
@@ -27,6 +28,7 @@ export function NodeSidePanel({
 
   const availableNodeKeys = [
     "gpt_4_turbo",
+    "gpt_4_turbo_2_inputs",
     "single_file_upload_txt",
     "single_file_upload_pdf",
     "single_file_upload_csv",
@@ -35,6 +37,7 @@ export function NodeSidePanel({
 
   const nodeSelectMap: { [key: string]: NodeSelectType } = {
     gpt_4_turbo: Gpt4TurboNodeSelect,
+    gpt_4_turbo_2_inputs: Gpt4Turbo2InputsNodeSelect,
     single_file_upload_txt: SingleFileUploadNodeSelect,
     single_file_upload_pdf: SingleFileUploadNodeSelect,
     single_file_upload_csv: SingleFileUploadNodeSelect,

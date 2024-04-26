@@ -73,7 +73,7 @@ export function NodeConfigurePanel() {
     syncFieldData(updatedNode, "from");
 
     // check if node is gpt_4_turbo. If so, sync related data.
-    if (updatedNode.type === "gpt_4_turbo") {
+    if (updatedNode.data?.service === "gpt_4_turbo") {
       gpt4TurboSyncDataFromInput(updatedNode);
     }
 
@@ -122,8 +122,8 @@ export function NodeConfigurePanel() {
         <p className="pt-2 font-semibold">node description</p>
         <Input id="node-config-panel-description-input" placeholder="Title" />
 
-        {/** if node is "gpt_4_turbo", create a section for configure system and user message */}
-        {currentNode?.type === "gpt_4_turbo" ? (
+        {/** if node is using "gpt_4_turbo", create a section for configure system and user message */}
+        {currentNode?.data?.service === "gpt_4_turbo" ? (
           <Gpt4TurboConfigArea node={currentNode} />
         ) : (
           <></>

@@ -25,6 +25,7 @@ export function reactFlowToYaml(
     const simplifiedNode: any = {
       id,
       key: type,
+      service: data.service,
       title: data.title,
       description: data.description,
       parameters: parameters,

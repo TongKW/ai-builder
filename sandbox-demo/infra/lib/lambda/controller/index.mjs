@@ -54,7 +54,7 @@ export async function handler(event) {
             })
           );
 
-          await fetch(`${process.env.SANDBOX_API}/services/${node.key}`, {
+          await fetch(`${process.env.SANDBOX_API}/services/${node.service}`, {
             method: "POST",
             body: JSON.stringify({
               workflowId: workflowId,
@@ -149,6 +149,32 @@ export async function handler(event) {
     } catch (error) {
       console.error("Error processing the record:", error);
       // Handle errors appropriately, possibly re-queue or log for later processing
+
+      // current approach: finish the script exit early
+      console.log("try updating workflow.yml right now.");
+      try {
+        // 1. Download workflow.yml from the S3 bucket
+        const s3Params = {
+          Bucket: "ai-pipeline-builder-sandbox",
+          Key: `${workflowId}/workflow.yml`,
+        };
+
+        const data = await s3.send(new GetObjectCommand(s3Params));
+
+        // Assuming the workflow.yml is a text file, read its content
+        const workflowSrc = await streamToString(data.Body);
+        const workflow = yaml.load(workflowSrc);
+
+        workflow.status = "finished";
+        // Save updated workflow back to S3
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: s3Params.Bucket,
+            Key: s3Params.Key,
+            Body: yaml.dump(workflow),
+          })
+        );
+      } catch (error) {}
     }
   }
 }
