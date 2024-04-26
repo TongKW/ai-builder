@@ -19,6 +19,13 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
         parameterName: "ai-pipeline-builder-sandbox-openapi-key",
       }
     );
+    const sandboxEmailAppPwKeyParam = ssm.StringParameter.fromStringParameterAttributes(
+      this,
+      "SandboxEmailAppPwKeyParameter",
+      {
+        parameterName: "ai-pipeline-builder-sandbox-sandbox-email-app-pw",
+      }
+    );
     const sandboxApiEndpointParam = ssm.StringParameter.fromStringParameterAttributes(
       this,
       "SandboxApiEndpointParameter",
@@ -193,6 +200,32 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     );
     pdfToTxtResource.addMethod("POST", pdfToTxtLambdaIntegration);
     lambdaToS3Policy(pdfToTxtBlock, "ai-pipeline-builder-sandbox");
+
+    // ==========================================================================================
+    // block - Sandbox Email (sandbox_email)
+    // Infra: api intgration <-> lambda function
+    // Format: <pdf> -> <text>
+    // Description:
+    // POST:
+    const sandboxEmailBlock = new lambda.Function(this, "SandboxEmailBlock", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "lambda", "sandbox_email", "src.zip")
+      ),
+      memorySize: 256,
+      handler: "index.handler",
+      timeout: cdk.Duration.minutes(5),
+      environment: {
+        EMAIL_APP_PW: sandboxEmailAppPwKeyParam.stringValue,
+      },
+    });
+    // lambda integration
+    const sandboxEmailResource = services.addResource("sandbox_email");
+    const sandboxEmailLambdaIntegration = new apigateway.LambdaIntegration(
+      sandboxEmailBlock
+    );
+    sandboxEmailResource.addMethod("POST", sandboxEmailLambdaIntegration);
+    lambdaToS3Policy(sandboxEmailBlock, "ai-pipeline-builder-sandbox");
 
     // ==========================================================================================
     // block - conditional (conditional)
