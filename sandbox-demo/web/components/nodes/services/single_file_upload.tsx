@@ -45,11 +45,14 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
           "putObject"
         );
 
+        // Create a new Blob from the file with the correct MIME type
+        const blob = new Blob([file], { type: `text/plain; charset=utf-8` });
+
         await fetch(presignedUrl, {
           method: "PUT",
-          body: file,
+          body: blob,
           headers: {
-            "Content-Type": file.type,
+            "Content-Type": blob.type,
           },
         });
 
