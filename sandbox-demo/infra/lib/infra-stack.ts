@@ -172,7 +172,30 @@ export class PipelineAiSandboxInfraStack extends cdk.Stack {
     lambdaToS3Policy(gpt4TurboBlock, "ai-pipeline-builder-sandbox");
 
     // ==========================================================================================
-    // 3. block - conditional (conditional)
+    // block - GPT 4 (pdf_to_txt)
+    // Infra: api intgration <-> lambda function
+    // Format: <pdf> -> <text>
+    // Description: convert pdf file into txt file
+    // POST:
+    const pdfToTxtBlock = new lambda.Function(this, "PdfToTxtBlock", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "lambda", "pdf_to_txt", "src.zip")
+      ),
+      memorySize: 1024,
+      handler: "index.handler",
+      timeout: cdk.Duration.minutes(5),
+    });
+    // lambda integration
+    const pdfToTxtResource = services.addResource("pdf_to_txt");
+    const pdfToTxtLambdaIntegration = new apigateway.LambdaIntegration(
+      pdfToTxtBlock
+    );
+    pdfToTxtResource.addMethod("POST", pdfToTxtLambdaIntegration);
+    lambdaToS3Policy(pdfToTxtBlock, "ai-pipeline-builder-sandbox");
+
+    // ==========================================================================================
+    // block - conditional (conditional)
     // Infra: api intgration <-> lambda function
     // Format: <text> | <JSON> -> <text> | <JSON>
     // Description:
