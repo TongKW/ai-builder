@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import isEqual from "lodash/isEqual";
 import ReactFlow, {
   useNodesState,
   useEdgesState,
@@ -173,6 +172,7 @@ export default function Workflow({
         setNodes,
         editingNodeId,
         setEditingNodeId,
+        isRunning,
       }}
     >
       <div className="flex flex-col w-screen h-screen">
