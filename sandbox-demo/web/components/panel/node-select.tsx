@@ -7,6 +7,8 @@ import { reactFlowNodeGenerate } from "../nodes/data";
 import { SingleFileUploadNodeSelect } from "../nodes/services/single_file_upload";
 import { SingleFileDownloadNodeSelect } from "../nodes/services/single_file_download";
 import { Gpt4Turbo2InputsNodeSelect } from "../nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
+import { SandboxEmailNodeSelect } from "../nodes/services/sandbox_email";
+import { InlineTextInputNodeSelect } from "../nodes/services/inline_text_input";
 
 type NodeSelectType = ({
   onClick,
@@ -30,9 +32,11 @@ export function NodeSidePanel({
     "gpt_4_turbo",
     "gpt_4_turbo_2_inputs",
     "single_file_upload_txt",
-    "single_file_upload_pdf",
-    "single_file_upload_csv",
+    // "single_file_upload_pdf",
+    // "single_file_upload_csv",
     "single_file_download_txt",
+    "sandbox_email",
+    "inline_text_input",
   ];
 
   const nodeSelectMap: { [key: string]: NodeSelectType } = {
@@ -42,6 +46,8 @@ export function NodeSidePanel({
     single_file_upload_pdf: SingleFileUploadNodeSelect,
     single_file_upload_csv: SingleFileUploadNodeSelect,
     single_file_download_txt: SingleFileDownloadNodeSelect,
+    sandbox_email: SandboxEmailNodeSelect,
+    inline_text_input: InlineTextInputNodeSelect,
   };
 
   return (

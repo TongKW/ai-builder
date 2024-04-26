@@ -9,8 +9,10 @@ const WorkflowContext = createContext<{
   setNodes: React.Dispatch<React.SetStateAction<any>>;
   editingNodeId: string;
   setEditingNodeId: (nodeId: string) => void;
+  isRunning: boolean;
 }>({
   workflowId: "",
+  isRunning: false,
   setWorkflowSrc: (value: React.SetStateAction<string>) => {
     // Handle both direct values and functional updates
     if (typeof value === "function") {

@@ -169,6 +169,52 @@ export const reactFlowData: { [key: string]: NodeData } = {
       output: [],
     },
   },
+
+  sandbox_email: {
+    id: "",
+    data: {
+      service: "sandbox_email",
+      title: "Sandbox Email",
+      description: "Send text content to a given recipient email.",
+      category: "Trigger",
+      status: "idle",
+      input: [
+        {
+          type: "txt",
+          order: 0,
+          title: "recipient",
+          description: "recipient email",
+        },
+        {
+          type: "txt",
+          order: 1,
+          title: "content",
+          description: "text content in the email",
+        },
+      ],
+      output: [],
+    },
+  },
+
+  inline_text_input: {
+    id: "",
+    data: {
+      service: "single_file_upload",
+      title: "Text input",
+      description: "Inline text input.",
+      category: "Data Input/Output",
+      status: "idle",
+      input: [],
+      output: [
+        {
+          type: "txt",
+          order: 0,
+          title: "text output",
+          description: "input text will output from here",
+        },
+      ],
+    },
+  },
 };
 
 export const reactFlowDataTypeMap: { [key: string]: string } = {

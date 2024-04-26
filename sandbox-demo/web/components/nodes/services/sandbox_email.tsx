@@ -1,97 +1,36 @@
 import clsx from "clsx";
-import { Download, MoveRight } from "lucide-react";
+import { Mail, MoveRight } from "lucide-react";
+import Image from "next/image";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
 import { NodeData } from "../data";
-import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
+import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { ContextMenuItem } from "@/components/ui/context-menu";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
-import { toast } from "@/components/ui/use-toast";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
 import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
-function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
-  const { workflowId, setEditingNodeId } = useWorkflowContext();
-
-  const onDownload = async () => {
-    if (!data.input[0].key) {
-      toast({
-        title: "Failed to download file.",
-        description: "File doesn't exist.",
-      });
-      return;
-    }
-
-    try {
-      toast({
-        title: "Downloading file...",
-        description: "The process will be finished in few seconds.",
-      });
-
-      // 1. Get the pre-signed URL
-      const presignedUrl = await getS3PresignedUrl(
-        workflowId,
-        data.input[0].key,
-        "getObject" // Changed from putObject to getObject
-      );
-      console.log(`presignedUrl = ${presignedUrl}`);
-
-      // 2. Fetch the object from S3 using the pre-signed URL
-      const response = await fetch(presignedUrl);
-
-      console.log(response);
-      if (!response.ok) throw new Error("Failed to fetch the file from S3.");
-      const blob = await response.blob();
-
-      // 3. Automatically download the file to the client's PC
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = data.input[0].key.split("/").pop() ?? ""; // Suggesting a filename from the key
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Download Successful",
-        description: "File has been downloaded successfully.",
-      });
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Download Failed",
-        description: "Failed to download the file. Please try again later.",
-      });
-    }
-  };
+function SandboxEmailNode({ id: nodeId, data }: NodeData) {
+  const { setEditingNodeId } = useWorkflowContext();
 
   return (
     <ContextMenuWrapper
       triggerElement={
-        <div className="shadow-md rounded-md border-2 border-stone-400 w-40 h-40 relative">
+        <div className="rounded-md border-2 border-stone-400 w-40 h-40 relative moving-border">
           <p
-            className="text-center absolute pb-2 whitespace-nowrap pointer-events-none"
+            className="text-center absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
             style={{
               transform: "translateX(80px) translateX(-50%) translateY(-100%)",
             }}
           >
             {data.title}
           </p>
-
-          <SingleFileDownloadNodeUi
+          <SandboxEmailNodeUi
             status={data.status ?? "idle"}
             description={data.description}
           />
 
-          {/** input.0 */}
+          {/** Input.0 */}
           <TooltipWrapper
             triggerElement={
               <Handle
@@ -100,6 +39,7 @@ function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
                 position={Position.Left}
                 className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
                 style={{
+                  transform: "translateY(-30px)",
                   backgroundColor:
                     dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
                   animation:
@@ -115,7 +55,7 @@ function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
                 <p
                   className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
                   style={{
-                    transform: "translateY(-100%)",
+                    transform: "translateY(-70%)",
                   }}
                 >
                   {data.input[0].title ?? ""}
@@ -125,29 +65,63 @@ function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
             }
             tooltipElement={<p>{data.input[0].description ?? ""}</p>}
           />
+
+          {/** Input.1 */}
+          <TooltipWrapper
+            triggerElement={
+              <Handle
+                id="input.1"
+                type="target"
+                position={Position.Left}
+                className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative bottom-10"
+                style={{
+                  transform: "translateY(10px)",
+                  backgroundColor:
+                    dataBlockBgColorMap[data.input[1]?.type ?? "txt"],
+                  animation:
+                    data.input[1].status === "ready"
+                      ? "pulse 1s infinite"
+                      : undefined,
+                  boxShadow:
+                    data.input[1].status === "ready"
+                      ? "0 0 20px rgba(252, 211, 77, 1.0)"
+                      : undefined,
+                }}
+              >
+                <p
+                  className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
+                  style={{
+                    transform: "translateY(-70%)",
+                  }}
+                >
+                  {data.input[1].title ?? ""}
+                </p>
+                <MoveRight className="pointer-events-none w-4 h-4" />
+              </Handle>
+            }
+            tooltipElement={<p> {data.input[1].description ?? ""}</p>}
+          />
         </div>
       }
       contextMenuElement={
-        <>
-          <ContextMenuItem className="cursor-pointer" onClick={onDownload}>
-            Download file
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="cursor-pointer"
-            onClick={() => setEditingNodeId(nodeId)}
-          >
-            Configuration
-          </ContextMenuItem>
-        </>
+        <ContextMenuItem
+          className="cursor-pointer"
+          onClick={() => {
+            console.log(`setEditingNodeId: ${nodeId}`);
+            setEditingNodeId(nodeId);
+          }}
+        >
+          Configuration
+        </ContextMenuItem>
       }
     />
   );
 }
 
-export function SingleFileDownloadNodeUi({
+export function SandboxEmailNodeUi({
   status,
   description,
-  size = 40,
+  size = 80,
 }: {
   status: string;
   description?: string;
@@ -158,7 +132,7 @@ export function SingleFileDownloadNodeUi({
       triggerElement={
         <div
           className={clsx(
-            "flex justify-center items-center relative w-full h-full rounded-md select-none",
+            "flex justify-center items-center relative w-full h-full rounded-md",
             {
               "bg-white hover:bg-gray-100": status === "idle",
               "bg-green-100 hover:bg-green-200": status === "ready",
@@ -166,7 +140,7 @@ export function SingleFileDownloadNodeUi({
             }
           )}
         >
-          <Download
+          <Mail
             style={{
               width: size,
               height: size,
@@ -180,7 +154,7 @@ export function SingleFileDownloadNodeUi({
   );
 }
 
-export function SingleFileDownloadNodeSelect({
+export function SandboxEmailNodeSelect({
   onClick,
   title = "",
   description = "",
@@ -195,11 +169,11 @@ export function SingleFileDownloadNodeSelect({
         className="shadow-md rounded-md border-2 border-stone-400 w-20 h-20 relative cursor-pointer"
         onClick={onClick}
       >
-        <SingleFileDownloadNodeUi status="idle" size={30} />
+        <SandboxEmailNodeUi status="idle" size={40} />
       </div>
       <p className="text-[10px] max-w-20 text-center">{title}</p>
     </div>
   );
 }
 
-export default memo(SingleFileDownloadNode);
+export default memo(SandboxEmailNode);

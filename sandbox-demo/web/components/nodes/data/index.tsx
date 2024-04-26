@@ -4,6 +4,9 @@ import Gpt4TurboNode from "@/components/nodes/services/gpt_4_turbo/gpt_4_turbo";
 import Gpt4Turbo2InputsNode from "@/components/nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
 import SingleFileUploadNode from "@/components/nodes/services/single_file_upload";
 import SingleFileDownloadNode from "@/components/nodes/services/single_file_download";
+import SandboxEmailNode from "@/components/nodes/services/sandbox_email";
+import InlineTextInputNode from "@/components/nodes/services/inline_text_input";
+
 import { MemoExoticComponent } from "react";
 import { reactFlowData, reactFlowDataTypeMap } from "./constants";
 
@@ -45,8 +48,10 @@ export const reactFlowNodeTypes: {
 } = {
   gpt_4_turbo: Gpt4TurboNode,
   gpt_4_turbo_2_inputs: Gpt4Turbo2InputsNode,
+  sandbox_email: SandboxEmailNode,
   single_file_upload: SingleFileUploadNode,
   single_file_download: SingleFileDownloadNode,
+  inline_text_input: InlineTextInputNode,
 };
 
 export function reactFlowNodeGenerate(

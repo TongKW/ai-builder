@@ -38,6 +38,18 @@ export async function handler(event) {
         },
       });
 
+      console.log(`Transporter params: `);
+      console.log({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "d95508730@gmail.com",
+          pass: process.env.EMAIL_APP_PW,
+        },
+      });
+
       const mailOptions = {
         from: "d95508730@gmail.com",
         to: recipientEmail,
@@ -45,12 +57,24 @@ export async function handler(event) {
         text: emailContent,
       };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error("Error sending email: ", error);
-        } else {
-          console.log("Email sent: ", info.response);
-        }
+      console.log("Mail options: ");
+      console.log({
+        from: "d95508730@gmail.com",
+        to: recipientEmail,
+        subject: "[Pipeline AI Sandbox] Automated email",
+        text: emailContent,
+      });
+
+      await new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error("Error sending email: ", error);
+            reject(error);
+          } else {
+            console.log("Email sent: ", info.response);
+            resolve(info);
+          }
+        });
       });
 
       return {
