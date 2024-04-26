@@ -4,15 +4,20 @@ import { createContext, useContext } from "react";
 
 const WorkflowContext = createContext<{
   workflowId: string;
-  setWorkflowSrc: (src: string) => void;
+  setWorkflowSrc: React.Dispatch<React.SetStateAction<string>>;
   nodes: any[];
   setNodes: React.Dispatch<React.SetStateAction<any>>;
   editingNodeId: string;
   setEditingNodeId: (nodeId: string) => void;
 }>({
   workflowId: "",
-  setWorkflowSrc: (src: string) => {
-    console.log(src);
+  setWorkflowSrc: (value: React.SetStateAction<string>) => {
+    // Handle both direct values and functional updates
+    if (typeof value === "function") {
+      const result = (value as Function)(""); // This is just for the default context, adjust as necessary
+      return result;
+    }
+    return value; // Direct string assignment
   },
   nodes: [],
   setNodes: (nodes: any[]) => {

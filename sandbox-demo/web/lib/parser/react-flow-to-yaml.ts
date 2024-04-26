@@ -17,7 +17,7 @@ export function reactFlowToYaml(
 
   // Mapping nodes data to the required YAML structure
   const yamlNodes = nodes.map((node) => {
-    const { id, data, type } = node;
+    const { id, data, type, parameters } = node;
 
     // Retrieve initial node data if available
     const initNode: any = initNodeMap.get(id);
@@ -27,7 +27,7 @@ export function reactFlowToYaml(
       key: type,
       title: data.title,
       description: data.description,
-      parameter: data.parameter,
+      parameters: parameters,
       status: initNode ? initNode.status : data.status, // Use initial status if available
     };
 

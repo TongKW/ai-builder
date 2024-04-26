@@ -159,14 +159,12 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
         </div>
       }
       contextMenuElement={
-        <>
-          <ContextMenuItem
-            className="cursor-pointer"
-            onClick={() => setEditingNodeId(nodeId)}
-          >
-            Configuration
-          </ContextMenuItem>
-        </>
+        <ContextMenuItem
+          className="cursor-pointer p-1 text-sm hover:bg-gray-100"
+          onClick={() => setEditingNodeId(nodeId)}
+        >
+          Configuration
+        </ContextMenuItem>
       }
     />
   );

@@ -6,6 +6,7 @@ nodes:
     status: idle
     output:
       - order: 0
+        locked: true
         type: txt
         key: 311f6d5418144a14a804acbf6388a95b.txt
         status: idle

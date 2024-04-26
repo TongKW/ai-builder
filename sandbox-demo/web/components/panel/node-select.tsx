@@ -22,7 +22,7 @@ export function NodeSidePanel({
 }: {
   onNodeCreate: (node: any) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   const availableNodeKeys = [

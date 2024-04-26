@@ -28,6 +28,20 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {
+      responseFormatType: "text",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You will be provided with a large chunk of text, and your task is to translate the text from English to Traditional Chinese. Return the translated text as output only.",
+        },
+        {
+          role: "user",
+          content: "{{ input.0 }}",
+        },
+      ],
+    },
   },
 
   single_file_upload_txt: {

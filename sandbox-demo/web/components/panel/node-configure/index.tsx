@@ -1,12 +1,22 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { SquareFunction } from "lucide-react";
+import { Button } from "../../ui/button";
+import { BotMessageSquare, SquareFunction, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateNode } from "@/lib/nodes/flow-graph/update-node";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
-import { NodeDataIO } from "../nodes/data";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { SmallAddButton } from "../../ui/custom/small-add-button";
+import { Textarea } from "@/components/ui/textarea";
+import { SmallDeleteButton } from "../../ui/custom/small-delete-button";
+import { useDebouncedCallback } from "use-debounce";
+import {
+  Gpt4TurboAssistantMessageBlock,
+  Gpt4TurboConfigArea,
+  Gpt4TurboUserMessageBlock,
+} from "./gpt_4_turbo";
 
 export function NodeConfigurePanel() {
   const { nodes, setNodes, editingNodeId, setEditingNodeId } =
@@ -15,9 +25,8 @@ export function NodeConfigurePanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentNode, setCurrentNode] = useState<any | undefined>();
 
-  // Define your useCallback for syncFieldData
   const syncFieldData = useCallback((node: any, type: "from" | "to") => {
-    // Your existing logic
+    // 1. update node title and description
     updateFields({
       obj: node.data,
       key: "title",
@@ -31,9 +40,9 @@ export function NodeConfigurePanel() {
       type,
     });
 
+    // 2. update node data io title and description
     for (const ioType of ["input", "output"]) {
       for (const [index, element] of (node.data[ioType] ?? []).entries()) {
-        console.log(`loop element: `, element);
         for (const key of ["type", "title", "description"]) {
           try {
             updateFields({
@@ -62,6 +71,12 @@ export function NodeConfigurePanel() {
   const onSave = () => {
     const updatedNode = { ...currentNode };
     syncFieldData(updatedNode, "from");
+
+    // check if node is gpt_4_turbo. If so, sync related data.
+    if (updatedNode.type === "gpt_4_turbo") {
+      gpt4TurboSyncDataFromInput(updatedNode);
+    }
+
     updateNode(updatedNode, setNodes);
     onClose();
   };
@@ -100,7 +115,6 @@ export function NodeConfigurePanel() {
         } transition-transform duration-300 ease-in-out shadow-md`}
       >
         <h2 className="text-sm mb-4 font-semibold">node configuration</h2>
-        {/* <p>{JSON.stringify(editingNode)}</p> */}
 
         <p className="font-semibold">node title</p>
         <Input id="node-config-panel-title-input" placeholder="Title" />
@@ -108,7 +122,12 @@ export function NodeConfigurePanel() {
         <p className="pt-2 font-semibold">node description</p>
         <Input id="node-config-panel-description-input" placeholder="Title" />
 
-        {/** if node.key === "gpt_4_turbo", create a section for configure system and user message */}
+        {/** if node is "gpt_4_turbo", create a section for configure system and user message */}
+        {currentNode?.type === "gpt_4_turbo" ? (
+          <Gpt4TurboConfigArea node={currentNode} />
+        ) : (
+          <></>
+        )}
 
         {(currentNode?.data?.input ?? []).length ? (
           <>
@@ -172,33 +191,6 @@ export function NodeConfigurePanel() {
     }
   }
 
-  // function updateDataIoFields(args: {
-  //   obj: any;
-  //   type: "from" | "to";
-  //   ioType: string;
-  //   index: number;
-  //   key: string;
-  //   id: string;
-  // }) {
-  //   try {
-  //     const { obj, type, ioType, index, key, id } = args;
-  //     // 1. Find the input element with the specified id
-  //     const inputElement = document.getElementById(id);
-
-  //     // 2. Check if the element exists and is an input
-  //     if (inputElement && inputElement instanceof HTMLInputElement) {
-  //       // 3. Update the value of the input element
-  //       if (type === "from") {
-  //         obj.data[ioType][index][key] = inputElement.value;
-  //       } else {
-  //         inputElement.value = obj.data[ioType][index][key] ?? "";
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   function DataIoConfigRow({
     index,
     type,
@@ -208,6 +200,8 @@ export function NodeConfigurePanel() {
   }) {
     return (
       <div className="flex flex-col p-2 border-2 border-gray-100 rounded-md">
+        <p className="text-gray-400 font-semibold">{`${type}.${index}`}</p>
+
         <div className="flex items-center">
           <p className="w-[100px]">type: </p>
           <Input
@@ -234,5 +228,29 @@ export function NodeConfigurePanel() {
         </div>
       </div>
     );
+  }
+
+  function gpt4TurboSyncDataFromInput(node: any) {
+    try {
+      let newParameter = node.parameters ?? {};
+
+      // 1. Find the input element with the specified id
+      const inputElement = document.getElementById(
+        `node-config-panel-gpt-4-turbo-parameters-input`
+      );
+
+      // 2. Check if the element exists and is an input
+      if (inputElement && inputElement instanceof HTMLInputElement) {
+        console.log(`inputElement.value: `);
+        console.log(inputElement.value);
+
+        newParameter = { ...newParameter, ...JSON.parse(inputElement.value) };
+      }
+      console.log(`newParameter: `, newParameter);
+
+      node.parameters = newParameter;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

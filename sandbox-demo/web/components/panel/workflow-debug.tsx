@@ -39,7 +39,7 @@ export function WorkflowDebugPanel({
           isOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out shadow-md`}
       >
-        <h2 className="text-sm mb-4">configuration file</h2>
+        <h2 className="text-sm mb-4 font-semibold">configuration file</h2>
         <AceEditor
           mode="yaml"
           theme="monokai"

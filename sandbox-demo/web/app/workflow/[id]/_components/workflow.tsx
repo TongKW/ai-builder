@@ -30,6 +30,7 @@ import { checkWorkflowRunning } from "@/lib/parser/check-workflow-running";
 import { runWorkflow } from "@/lib/api/run-workflow";
 import { toast } from "@/components/ui/use-toast";
 import { NodeConfigurePanel } from "@/components/panel/node-configure";
+import { WorkflowStatusResetPanel } from "@/components/panel/workflow-status-reset";
 
 export default function Workflow({
   workflowId,
@@ -57,8 +58,6 @@ export default function Workflow({
   const [isRunning, setRunning] = useState(false);
 
   const [editingNodeId, setEditingNodeId] = useState("");
-
-  console.log(`editingNodeId = ${editingNodeId}`);
 
   const onWorkflowRun = async () => {
     setRunning(true); // Set isRunning state to true to indicate the workflow is running
@@ -198,6 +197,7 @@ export default function Workflow({
           setEdited={setEdited}
           onWorkflowSave={onWorkflowSave}
         />
+        <WorkflowStatusResetPanel isRunning={isRunning} setEdited={setEdited} />
         <ReactFlow
           nodes={nodes}
           edges={edges}
