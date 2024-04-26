@@ -112,22 +112,33 @@ async function replacePlaceholders(
   outputKeys,
   regex
 ) {
-  return text.replace(regex, async (match, group) => {
-    try {
-      const key = getGroupCorrespondingKey(group, inputKeys, outputKeys);
-      const dataResponse = await s3.send(
-        new GetObjectCommand({
-          Bucket: bucketName,
-          Key: `${workflowId}/data/${key}`,
-        })
-      );
-      const fileContent = await streamToString(dataResponse.Body);
-      return fileContent;
-    } catch (e) {
-      console.error(`Error retrieving data for ${dataId}:`, e);
-      return match; // return the original placeholder if there's an error
-    }
+  const matches = [...text.matchAll(regex)];
+  const replacements = await Promise.all(
+    matches.map(async (match) => {
+      try {
+        const group = match[1];
+        const key = getGroupCorrespondingKey(group, inputKeys, outputKeys);
+        const dataResponse = await s3.send(
+          new GetObjectCommand({
+            Bucket: bucketName,
+            Key: `${workflowId}/data/${key}`,
+          })
+        );
+        const fileContent = await streamToString(dataResponse.Body);
+        return fileContent;
+      } catch (e) {
+        console.error(`Error retrieving data for ${key}:`, e);
+        return match[0]; // return the original placeholder if there's an error
+      }
+    })
+  );
+
+  let replacedText = text;
+  matches.forEach((match, index) => {
+    replacedText = replacedText.replace(match[0], replacements[index]);
   });
+
+  return replacedText;
 }
 
 function getGroupCorrespondingKey(group, inputKeys, outputKeys) {
