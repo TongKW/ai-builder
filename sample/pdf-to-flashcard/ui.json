@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    { "id": "node_id_1", "position": [0, 0] },
+    { "id": "node_id_2", "position": [1, 0] },
+    { "id": "node_id_3", "position": [0, 1] }
+  ],
+  "data": [
+    {
+      "id": "data_id_1",
+      "from": [
+        {
+          "node_id": "node_id_1",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_2",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "data_id_2",
+      "from": [
+        {
+          "node_id": "node_id_2",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_3",
+          "order": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    { "id": "node_id_1", "position": [0, 0] },
+    { "id": "node_id_2", "position": [1, 0] },
+    { "id": "node_id_3", "position": [2, 0] },
+    { "id": "node_id_4", "position": [3, 0] },
+    { "id": "node_id_5", "position": [4, 0] },
+    { "id": "node_id_6", "position": [5, 0] }
+  ],
+  "data": [
+    {
+      "id": "data_id_1",
+      "from": [
+        {
+          "node_id": "node_id_1",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_2",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "data_id_2",
+      "from": [
+        {
+          "node_id": "node_id_2",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_3",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "data_id_3",
+      "from": [
+        {
+          "node_id": "node_id_3",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_4",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "data_id_4",
+      "from": [
+        {
+          "node_id": "node_id_4",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_5",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "data_id_5",
+      "from": [
+        {
+          "node_id": "node_id_5",
+          "order": 0
+        }
+      ],
+      "to": [
+        {
+          "node_id": "node_id_6",
+          "order": 0
+        }
+      ]
+    }
+  ]
+}

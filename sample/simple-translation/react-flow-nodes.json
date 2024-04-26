@@ -1,0 +1,102 @@
+[
+  {
+    "data": {
+      "title": "GPT 4 Turbo",
+      "description": "A generic LLM block.",
+      "category": "Base Model",
+      "status": "idle",
+      "input": [
+        {
+          "type": "txt",
+          "order": 0,
+          "key": "311f6d5418144a14a804acbf6388a95b.txt",
+          "status": "idle"
+        }
+      ],
+      "output": [
+        {
+          "type": "txt",
+          "order": 0,
+          "key": "2e8d7daec27448c8949ea1785c8e57d7.txt",
+          "status": "idle"
+        }
+      ]
+    },
+    "id": "gpt_4_turbo_a8bef929f92a4d95b08f40aafdf1f409",
+    "type": "gpt_4_turbo",
+    "width": 160,
+    "height": 160,
+    "position": {
+      "x": 418.46580645209417,
+      "y": 453.3461751133511
+    },
+    "selected": false,
+    "positionAbsolute": {
+      "x": 418.46580645209417,
+      "y": 453.3461751133511
+    },
+    "dragging": false
+  },
+  {
+    "data": {
+      "title": "File Upload (TXT)",
+      "description": "Upload and store a text file.",
+      "category": "Data Input/Output",
+      "status": "idle",
+      "input": [],
+      "output": [
+        {
+          "type": "txt",
+          "order": 0,
+          "key": "311f6d5418144a14a804acbf6388a95b.txt",
+          "status": "idle"
+        }
+      ]
+    },
+    "id": "single_file_upload_txt_118d10d7a7d849d6b1b481ea34ba5848",
+    "type": "single_file_upload",
+    "width": 160,
+    "height": 160,
+    "position": {
+      "x": 419.8577485191846,
+      "y": 210.40537195527298
+    },
+    "selected": false,
+    "positionAbsolute": {
+      "x": 419.8577485191846,
+      "y": 210.40537195527298
+    },
+    "dragging": false
+  },
+  {
+    "data": {
+      "title": "File Download (TXT)",
+      "description": "Download a text file.",
+      "category": "Data Input/Output",
+      "status": "idle",
+      "input": [
+        {
+          "type": "txt",
+          "order": 0,
+          "key": "2e8d7daec27448c8949ea1785c8e57d7.txt",
+          "status": "idle"
+        }
+      ],
+      "output": []
+    },
+    "id": "single_file_download_txt_334b512a128c463c84037fdefd2666e1",
+    "type": "single_file_download",
+    "width": 160,
+    "height": 160,
+    "position": {
+      "x": 469.81074391054585,
+      "y": 752.4829493049748
+    },
+    "selected": true,
+    "positionAbsolute": {
+      "x": 469.81074391054585,
+      "y": 752.4829493049748
+    },
+    "dragging": false
+  }
+]

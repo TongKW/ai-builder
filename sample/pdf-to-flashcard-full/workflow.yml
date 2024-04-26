@@ -1,0 +1,135 @@
+nodes:
+  - id: node_id_1
+    key: single_file_upload_pdf
+    title: "File Upload (PDF)"
+    description: "Upload and store a PDF."
+    category: "Data Input/Output"
+    status: idle
+    output:
+      - order: 0
+        type: pdf
+
+  - id: node_id_2
+    key: pdf_to_text
+    title: "PDF to Text"
+    description: "This node will turn a PDF into a text file."
+    category: "Data Formatting"
+    status: idle
+    input:
+      - order: 0
+        type: pdf
+    output:
+      - order: 0
+        type: txt
+
+  - id: node_id_3
+    key: text_chunking
+    title: "Text Chunking (Whole Sentence)"
+    description: "Chunk text into a list of sentences."
+    category: "Data Formatting"
+    status: idle
+    parameters:
+      - chunk_size: 30
+    input:
+      - order: 0
+        type: txt
+    output:
+      - order: 0
+        type: json
+  
+  - id: node_id_4
+    key: gpt_4_turbo
+    loop: true
+    rag: rag_id_1 # RAG to be implemented
+    parameters:
+      - responseFormatType: "text"
+      - messages:
+        - role: system
+          content: "You will be provided with a chunk of text, and your task is to generate a list of multiple-choice questions related to the text context. The output format must be json."
+        - role: user
+          content: {{ input.0 }}
+    title: "MCQ Generation"
+    description: "Generate a list of multiple-choice question based on the given text."
+    category: "Text Processing"
+    status: idle
+    input:
+      - order: 0
+        type: json
+    output:
+      - order: 0
+        type: json
+
+  - id: node_id_5
+    key: json_flattening
+    loop: true
+    title: "JSON Flattening"
+    description: "Turn a nested list of json object into a single flattened array."
+    category: "Data Format"
+    status: idle
+    input:
+      - order: 0
+        type: json
+    output:
+      - order: 0
+        type: json
+
+  - id: node_id_6
+    key: single_file_download
+    loop: true
+    title: "File Download"
+    description: "Download a file."
+    category: "Data Input/Output"
+    input:
+      - order: 0
+        type: json
+
+data:
+  - id: data_id_1
+    type: pdf
+    status: idle
+    from:
+      - node_id: node_id_1
+        order: 0
+    to:
+      - node_id: node_id_2
+        order: 0
+
+  - id: data_id_2
+    type: txt
+    status: idle
+    from:
+      - node_id: node_id_2
+        order: 0
+    to:
+      - node_id: node_id_3
+        order: 0
+
+  - id: data_id_3
+    type: json
+    status: idle
+    from:
+      - node_id: node_id_3
+        order: 0
+    to:
+      - node_id: node_id_4
+        order: 0
+  
+  - id: data_id_4
+    type: json
+    status: idle
+    from:
+      - node_id: node_id_4
+        order: 0
+    to:
+      - node_id: node_id_5
+        order: 0
+  
+  - id: data_id_5
+    type: json
+    status: idle
+    from:
+      - node_id: node_id_5
+        order: 0
+    to:
+      - node_id: node_id_6
+        order: 0
