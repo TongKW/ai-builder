@@ -15,7 +15,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "txt",
           order: 0,
-          title: "input 1",
+          title: "input",
           description: "pass input text to form a custom prompt",
         },
       ],
@@ -23,7 +23,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         {
           type: "txt",
           order: 0,
-          title: "response",
+          title: "output",
           description: "gpt-4-turbo response from chat completion",
         },
       ],
@@ -33,8 +33,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       messages: [
         {
           role: "system",
-          content:
-            "You will be provided with a large chunk of text, and your task is to translate the text from English to Traditional Chinese. Return the translated text as output only.",
+          content: "",
         },
         {
           role: "user",

@@ -149,6 +149,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
       <Textarea
         id="node-config-panel-gpt-4-turbo-system-message"
         placeholder="System message (Optional)"
+        value={gpt4TurboParameters.systemMessage ?? ""}
         onChange={(event) => {
           const textValue = event.target.value;
           setGpt4TurboParameters((parameters) => {
@@ -167,6 +168,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
             <Gpt4TurboUserMessageBlock
               key={index}
               index={index}
+              initContent={message.content}
               setGpt4TurboParameters={setGpt4TurboParameters}
             />
           );
@@ -175,6 +177,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
             <Gpt4TurboAssistantMessageBlock
               key={index}
               index={index}
+              initContent={message.content}
               setGpt4TurboParameters={setGpt4TurboParameters}
             />
           );
@@ -232,6 +235,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
 
 export function Gpt4TurboUserMessageBlock(props: {
   index: number;
+  initContent: string;
   setGpt4TurboParameters: React.Dispatch<
     React.SetStateAction<{
       systemMessage: string;
@@ -242,12 +246,13 @@ export function Gpt4TurboUserMessageBlock(props: {
     }>
   >;
 }) {
-  const { index, setGpt4TurboParameters } = props;
+  const { index, initContent, setGpt4TurboParameters } = props;
   return (
     <div className="flex gap-2 items-start">
       <Textarea
         id={`node-config-panel-gpt-4-turbo-user-messages-${index}`}
         placeholder="User message here"
+        value={initContent}
         onChange={(event) => {
           const textValue = event.target.value;
           setGpt4TurboParameters((parameters) => {
@@ -270,6 +275,7 @@ export function Gpt4TurboUserMessageBlock(props: {
 
 export function Gpt4TurboAssistantMessageBlock(props: {
   index: number;
+  initContent: string;
   setGpt4TurboParameters: React.Dispatch<
     React.SetStateAction<{
       systemMessage: string;
@@ -280,7 +286,7 @@ export function Gpt4TurboAssistantMessageBlock(props: {
     }>
   >;
 }) {
-  const { index, setGpt4TurboParameters } = props;
+  const { index, initContent, setGpt4TurboParameters } = props;
   return (
     <div className="flex gap-2 items-start">
       <div className="rounded-sm shadow-sm flex items-center justify-center pt-2 h-5 w-5">
@@ -288,6 +294,7 @@ export function Gpt4TurboAssistantMessageBlock(props: {
       </div>
       <Textarea
         id={`node-config-panel-gpt-4-turbo-user-messages-${index}`}
+        value={initContent}
         placeholder="Assistant message here"
         onChange={(event) => {
           const textValue = event.target.value;
