@@ -124,7 +124,10 @@ export function NodeConfigurePanel() {
 
         {/** if node is using "gpt_4_turbo", create a section for configure system and user message */}
         {currentNode?.data?.service === "gpt_4_turbo" ? (
-          <Gpt4TurboConfigArea node={currentNode} />
+          <Gpt4TurboConfigArea
+            node={currentNode}
+            inputs={currentNode?.data?.input ?? []}
+          />
         ) : (
           <></>
         )}

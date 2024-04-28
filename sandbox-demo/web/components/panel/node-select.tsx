@@ -9,6 +9,7 @@ import { SingleFileDownloadNodeSelect } from "../nodes/services/single_file_down
 import { Gpt4Turbo2InputsNodeSelect } from "../nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
 import { SandboxEmailNodeSelect } from "../nodes/services/sandbox_email";
 import { InlineTextInputNodeSelect } from "../nodes/services/inline_text_input";
+import clsx from "clsx";
 
 type NodeSelectType = ({
   onClick,
@@ -61,9 +62,13 @@ export function NodeSidePanel({
         <Plus className="h-4 w-4" />
       </Button>
       <div
-        className={`bg-white w-[30%] w-40 h-full p-5 z-[999] fixed inset-y-0 left-0 transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out shadow-md`}
+        className={clsx(
+          `bg-white w-[30%] w-40 h-full p-5 z-[999] fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out shadow-md select-none`,
+          {
+            "translate-x-0": !isOpen,
+            "-translate-x-full": isOpen,
+          }
+        )}
       >
         <p className="text-sm pb-3">Add nodes</p>
         <div className="flex flex-wrap gap-4">

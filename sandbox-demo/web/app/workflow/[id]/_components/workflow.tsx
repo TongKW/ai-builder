@@ -209,7 +209,6 @@ export default function Workflow({
           onConnect={onConnect}
           nodeTypes={reactFlowNodeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
-          contentEditable={!isRunning}
           nodesConnectable={!isRunning}
           nodesDraggable={!isRunning}
           className="bg-teal-50 h-100 w-100 select-none"
