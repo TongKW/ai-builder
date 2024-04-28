@@ -13,5 +13,11 @@ export default function MainPage() {
     redirect(`/workflow/${workflowId}`);
   }, []);
 
-  return <></>;
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <p className="text-lg font-semibold text-gray-600">
+        Redirecting to workflow sandbox editor...
+      </p>
+    </div>
+  );
 }
