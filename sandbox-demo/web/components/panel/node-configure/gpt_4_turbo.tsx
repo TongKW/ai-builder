@@ -1,5 +1,6 @@
 "use client";
 
+import { EditorTextarea } from "@/components/ui/custom/editor-textarea";
 import { SmallAddButton } from "@/components/ui/custom/small-add-button";
 import { SmallDeleteButton } from "@/components/ui/custom/small-delete-button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,8 @@ import { BotMessageSquare, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
-export function Gpt4TurboConfigArea(props: { node: any }) {
-  const { node } = props;
+export function Gpt4TurboConfigArea(props: { node: any; inputs: any[] }) {
+  const { node, inputs } = props;
 
   const [gpt4TurboParameters, setGpt4TurboParameters] = useState<{
     systemMessage: string;
@@ -146,15 +147,15 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
 
       <p className="">system message</p>
       {/** System message */}
-      <Textarea
+      <EditorTextarea
         id="node-config-panel-gpt-4-turbo-system-message"
         placeholder="System message (Optional)"
         value={gpt4TurboParameters.systemMessage ?? ""}
-        onChange={(event) => {
-          const textValue = event.target.value;
+        inputs={inputs}
+        onValueChange={(value) => {
           setGpt4TurboParameters((parameters) => {
             return {
-              systemMessage: textValue,
+              systemMessage: value,
               messages: parameters.messages,
             };
           });
@@ -168,6 +169,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
             <Gpt4TurboUserMessageBlock
               key={index}
               index={index}
+              inputs={inputs}
               initContent={message.content}
               setGpt4TurboParameters={setGpt4TurboParameters}
             />
@@ -177,6 +179,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
             <Gpt4TurboAssistantMessageBlock
               key={index}
               index={index}
+              inputs={inputs}
               initContent={message.content}
               setGpt4TurboParameters={setGpt4TurboParameters}
             />
@@ -236,6 +239,7 @@ export function Gpt4TurboConfigArea(props: { node: any }) {
 export function Gpt4TurboUserMessageBlock(props: {
   index: number;
   initContent: string;
+  inputs: any[];
   setGpt4TurboParameters: React.Dispatch<
     React.SetStateAction<{
       systemMessage: string;
@@ -246,21 +250,21 @@ export function Gpt4TurboUserMessageBlock(props: {
     }>
   >;
 }) {
-  const { index, initContent, setGpt4TurboParameters } = props;
+  const { index, inputs, initContent, setGpt4TurboParameters } = props;
   return (
     <div className="flex gap-2 items-start">
-      <Textarea
+      <EditorTextarea
         id={`node-config-panel-gpt-4-turbo-user-messages-${index}`}
         placeholder="User message here"
+        inputs={inputs}
         value={initContent}
-        onChange={(event) => {
-          const textValue = event.target.value;
+        onValueChange={(value) => {
           setGpt4TurboParameters((parameters) => {
             return {
               systemMessage: parameters.systemMessage,
               messages: parameters.messages.map((message, i) => {
                 if (i !== index) return message;
-                return { ...message, content: textValue };
+                return { ...message, content: value };
               }),
             };
           });
@@ -276,6 +280,7 @@ export function Gpt4TurboUserMessageBlock(props: {
 export function Gpt4TurboAssistantMessageBlock(props: {
   index: number;
   initContent: string;
+  inputs: any[];
   setGpt4TurboParameters: React.Dispatch<
     React.SetStateAction<{
       systemMessage: string;
@@ -286,24 +291,24 @@ export function Gpt4TurboAssistantMessageBlock(props: {
     }>
   >;
 }) {
-  const { index, initContent, setGpt4TurboParameters } = props;
+  const { index, inputs, initContent, setGpt4TurboParameters } = props;
   return (
     <div className="flex gap-2 items-start">
       <div className="rounded-sm shadow-sm flex items-center justify-center pt-2 h-5 w-5">
         <BotMessageSquare />
       </div>
-      <Textarea
+      <EditorTextarea
         id={`node-config-panel-gpt-4-turbo-user-messages-${index}`}
         value={initContent}
+        inputs={inputs}
         placeholder="Assistant message here"
-        onChange={(event) => {
-          const textValue = event.target.value;
+        onValueChange={(value) => {
           setGpt4TurboParameters((parameters) => {
             return {
               systemMessage: parameters.systemMessage,
               messages: parameters.messages.map((message, i) => {
                 if (i !== index) return message;
-                return { ...message, content: textValue };
+                return { ...message, content: value };
               }),
             };
           });
