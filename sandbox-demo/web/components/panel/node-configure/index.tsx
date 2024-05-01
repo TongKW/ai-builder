@@ -2,21 +2,11 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "../../ui/button";
-import { BotMessageSquare, SquareFunction, User } from "lucide-react";
+import { SquareFunction } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { updateNode } from "@/lib/nodes/flow-graph/update-node";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { SmallAddButton } from "../../ui/custom/small-add-button";
-import { Textarea } from "@/components/ui/textarea";
-import { SmallDeleteButton } from "../../ui/custom/small-delete-button";
-import { useDebouncedCallback } from "use-debounce";
-import {
-  Gpt4TurboAssistantMessageBlock,
-  Gpt4TurboConfigArea,
-  Gpt4TurboUserMessageBlock,
-} from "./gpt_4_turbo";
+import { Gpt4TurboConfigArea } from "./gpt_4_turbo";
 
 export function NodeConfigurePanel() {
   const { nodes, setNodes, editingNodeId, setEditingNodeId } =
@@ -39,6 +29,21 @@ export function NodeConfigurePanel() {
       id: "node-config-panel-description-input",
       type,
     });
+
+    console.log(`node = `, node);
+    if (
+      node?.data?.service === "single_file_download" &&
+      (node?.data?.input ?? []).length
+    ) {
+      console.log(`isFilenameConfigurable = true`);
+
+      updateFields({
+        obj: node.data.input[0],
+        key: "filename",
+        id: "node-config-panel-single-download-filename",
+        type,
+      });
+    }
 
     // 2. update node data io title and description
     for (const ioType of ["input", "output"]) {
@@ -157,6 +162,28 @@ export function NodeConfigurePanel() {
                 type="output"
               />
             ))}
+          </>
+        ) : (
+          <></>
+        )}
+
+        {currentNode?.data?.service === "single_file_download" &&
+        (currentNode?.data?.input ?? []).length ? (
+          <>
+            <p className="pt-2 font-semibold">download filename</p>
+            <div className="flex gap-2 items-center">
+              <Input
+                id={`node-config-panel-single-download-filename`}
+                placeholder={`${(currentNode?.data?.input[0].key ?? ".")
+                  .split(".")
+                  .slice(0, -1)
+                  .join(".")}`}
+              />
+              <p>{`.${(currentNode?.data?.input[0].key ?? ".")
+                .split(".")
+                .slice(-1)
+                .join("")}`}</p>
+            </div>
           </>
         ) : (
           <></>

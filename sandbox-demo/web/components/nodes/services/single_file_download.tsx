@@ -16,7 +16,7 @@ import {
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
 import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
-function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
+function SingleFileDownloadNode({ id: nodeId, data, parameters }: NodeData) {
   const { workflowId, setEditingNodeId } = useWorkflowContext();
 
   const onDownload = async () => {
@@ -53,7 +53,12 @@ function SingleFileDownloadNode({ id: nodeId, data }: NodeData) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = data.input[0].key.split("/").pop() ?? ""; // Suggesting a filename from the key
+      a.download = data.input[0].filename
+        ? `${data.input[0].filename}.${data.input[0].key
+            .split(".")
+            .slice(-1)
+            .join("")}`
+        : data.input[0].key.split("/").pop() ?? ""; // Suggesting a filename from the key
       document.body.appendChild(a);
       a.click();
       a.remove();

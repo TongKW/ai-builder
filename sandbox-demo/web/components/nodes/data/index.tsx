@@ -42,6 +42,7 @@ export interface NodeDataIO {
   type: string;
   order: number;
   key?: string;
+  filename?: string;
   status?: string;
   title?: string;
   description?: string;

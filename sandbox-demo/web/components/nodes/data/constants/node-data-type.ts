@@ -108,6 +108,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {},
   },
 
   single_file_upload_pdf: {
@@ -128,6 +129,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {},
   },
 
   single_file_upload_csv: {
@@ -148,6 +150,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {},
   },
 
   single_file_download_txt: {
@@ -168,6 +171,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       ],
       output: [],
     },
+    parameters: {},
   },
 
   single_file_download_md: {
@@ -188,6 +192,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       ],
       output: [],
     },
+    parameters: {},
   },
 
   sandbox_email: {
@@ -214,6 +219,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
       ],
       output: [],
     },
+    parameters: {},
   },
 
   inline_text_input: {
@@ -234,6 +240,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {},
   },
 
   txt_to_md: {
@@ -261,6 +268,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
         },
       ],
     },
+    parameters: {},
   },
 };
 

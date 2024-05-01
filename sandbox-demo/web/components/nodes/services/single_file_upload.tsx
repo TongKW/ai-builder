@@ -175,7 +175,7 @@ function SingleFileUploadNode({ id: nodeId, data }: NodeData) {
 export function SingleFileUploadNodeUi({
   status,
   description,
-  size = 60,
+  size = 40,
 }: {
   status: string;
   description?: string;
