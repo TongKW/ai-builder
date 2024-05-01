@@ -1,4 +1,4 @@
-import { NodeData } from ".";
+import { NodeData } from "..";
 
 /**
  * Node data block text description and intput/output types definition
@@ -154,7 +154,7 @@ export const reactFlowData: { [key: string]: NodeData } = {
     id: "",
     data: {
       service: "single_file_download",
-      title: "File Download (TXT)",
+      title: "File Download (Text)",
       description: "Download a text file.",
       category: "Data Input/Output",
       status: "idle",
@@ -163,7 +163,27 @@ export const reactFlowData: { [key: string]: NodeData } = {
           type: "txt",
           order: 0,
           title: "file input",
-          description: "right click this block to download the text file",
+          description: "right click this block to download the file",
+        },
+      ],
+      output: [],
+    },
+  },
+
+  single_file_download_md: {
+    id: "",
+    data: {
+      service: "single_file_download",
+      title: "File Download (Markdown)",
+      description: "Download a markdown file.",
+      category: "Data Input/Output",
+      status: "idle",
+      input: [
+        {
+          type: "md",
+          order: 0,
+          title: "file input",
+          description: "right click this block to download the file",
         },
       ],
       output: [],
@@ -215,6 +235,33 @@ export const reactFlowData: { [key: string]: NodeData } = {
       ],
     },
   },
+
+  txt_to_md: {
+    id: "",
+    data: {
+      service: "txt_to_md",
+      title: "Text to Markdown",
+      description: "Convert your file from text to markdown.",
+      category: "File Conversion",
+      status: "idle",
+      input: [
+        {
+          type: "txt",
+          order: 0,
+          title: "input",
+          description: "text file to be converted",
+        },
+      ],
+      output: [
+        {
+          type: "md",
+          order: 0,
+          title: "output",
+          description: "converted markdown file",
+        },
+      ],
+    },
+  },
 };
 
 export const reactFlowDataTypeMap: { [key: string]: string } = {
@@ -222,4 +269,5 @@ export const reactFlowDataTypeMap: { [key: string]: string } = {
   single_file_upload_pdf: "single_file_upload",
   single_file_upload_csv: "single_file_upload",
   single_file_download_txt: "single_file_download",
+  single_file_download_md: "single_file_download",
 };

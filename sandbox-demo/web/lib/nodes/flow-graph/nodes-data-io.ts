@@ -1,4 +1,4 @@
-import { dataIOTypeToExtension } from "@/lib/constants/data-io-property";
+import { dataIOTypeToExtension } from "@/components/nodes/data/constants/data-io-property";
 import { v4 as uuidv4 } from "uuid";
 
 export function assignNodesDataIO(nodes: any[], edgeParams: any) {

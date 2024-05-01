@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Mail, MoveRight } from "lucide-react";
+import { FileInput, MoveRight } from "lucide-react";
 import Image from "next/image";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
@@ -10,7 +10,7 @@ import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
 import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 
-function SandboxEmailNode({ id: nodeId, data }: NodeData) {
+function TxtToMdNode({ id: nodeId, data }: NodeData) {
   const { setEditingNodeId } = useWorkflowContext();
 
   return (
@@ -25,7 +25,7 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
           >
             {data.title}
           </p>
-          <SandboxEmailNodeUi
+          <TxtToMdNodeUi
             status={data.status ?? "idle"}
             description={data.description}
           />
@@ -39,7 +39,6 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
                 position={Position.Left}
                 className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
                 style={{
-                  transform: "translateY(-30px)",
                   backgroundColor:
                     dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
                   animation:
@@ -55,7 +54,7 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
                 <p
                   className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
                   style={{
-                    transform: "translateY(-70%)",
+                    transform: "translateY(-100%)",
                   }}
                 >
                   {data.input[0].title ?? ""}
@@ -63,27 +62,26 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
                 <MoveRight className="pointer-events-none w-4 h-4" />
               </Handle>
             }
-            tooltipElement={<p>{data.input[0].description ?? ""}</p>}
+            tooltipElement={<p> {data.input[0].description ?? ""}</p>}
           />
 
-          {/** Input.1 */}
+          {/** output.0 */}
           <TooltipWrapper
             triggerElement={
               <Handle
-                id="input.1"
-                type="target"
-                position={Position.Left}
-                className="w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative bottom-10"
+                id="output.0"
+                type="source"
+                position={Position.Right}
+                className="w-6 h-6 !bg-gray-300 border-2 border-stone-400 flex items-center justify-center relative"
                 style={{
-                  transform: "translateY(10px)",
                   backgroundColor:
-                    dataBlockBgColorMap[data.input[1]?.type ?? "txt"],
+                    dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
                   animation:
-                    data.input[1].status === "ready"
+                    data.output[0].status === "ready"
                       ? "pulse 1s infinite"
                       : undefined,
                   boxShadow:
-                    data.input[1].status === "ready"
+                    data.output[0].status === "ready"
                       ? "0 0 20px rgba(252, 211, 77, 1.0)"
                       : undefined,
                 }}
@@ -91,15 +89,15 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
                 <p
                   className="text-center text-[8px] absolute top-0 pb-2 whitespace-nowrap pointer-events-none"
                   style={{
-                    transform: "translateY(-70%)",
+                    transform: "translateY(-100%)",
                   }}
                 >
-                  {data.input[1].title ?? ""}
+                  {data.output[0].title ?? ""}
                 </p>
                 <MoveRight className="pointer-events-none w-4 h-4" />
               </Handle>
             }
-            tooltipElement={<p> {data.input[1].description ?? ""}</p>}
+            tooltipElement={<p> {data.output[0].description ?? ""}</p>}
           />
         </div>
       }
@@ -118,10 +116,10 @@ function SandboxEmailNode({ id: nodeId, data }: NodeData) {
   );
 }
 
-export function SandboxEmailNodeUi({
+export function TxtToMdNodeUi({
   status,
   description,
-  size = 80,
+  size = 40,
 }: {
   status: string;
   description?: string;
@@ -140,7 +138,7 @@ export function SandboxEmailNodeUi({
             }
           )}
         >
-          <Mail
+          <FileInput
             style={{
               width: size,
               height: size,
@@ -154,7 +152,7 @@ export function SandboxEmailNodeUi({
   );
 }
 
-export function SandboxEmailNodeSelect({
+export function TxtToMdNodeSelect({
   onClick,
   title = "",
   description = "",
@@ -169,11 +167,11 @@ export function SandboxEmailNodeSelect({
         className="shadow-md rounded-md border-2 border-stone-400 w-20 h-20 relative cursor-pointer"
         onClick={onClick}
       >
-        <SandboxEmailNodeUi status="idle" size={30} />
+        <TxtToMdNodeUi status="idle" size={30} />
       </div>
       <p className="text-[10px] max-w-20 text-center">{title}</p>
     </div>
   );
 }
 
-export default memo(SandboxEmailNode);
+export default memo(TxtToMdNode);

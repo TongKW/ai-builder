@@ -3,7 +3,7 @@ import { MoveRight, TextCursorInput, Upload } from "lucide-react";
 import React, { memo, useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 import { NodeData } from "../data";
-import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { dataBlockBgColorMap } from "@/components/nodes/data/constants/data-io-property";
 import { toast } from "@/components/ui/use-toast";
 import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
@@ -208,8 +208,8 @@ export function InlineTextInputNodeSelect({
             <div className="flex justify-center items-center relative w-full h-full rounded-md select-none bg-white hover:bg-gray-100">
               <TextCursorInput
                 style={{
-                  width: 50,
-                  height: 50,
+                  width: 30,
+                  height: 30,
                   color: "black",
                 }}
               />

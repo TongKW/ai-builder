@@ -6,9 +6,13 @@ import SingleFileUploadNode from "@/components/nodes/services/single_file_upload
 import SingleFileDownloadNode from "@/components/nodes/services/single_file_download";
 import SandboxEmailNode from "@/components/nodes/services/sandbox_email";
 import InlineTextInputNode from "@/components/nodes/services/inline_text_input";
+import TextToMdNode from "@/components/nodes/services/txt_to_md";
 
 import { MemoExoticComponent } from "react";
-import { reactFlowData, reactFlowDataTypeMap } from "./constants";
+import {
+  reactFlowData,
+  reactFlowDataTypeMap,
+} from "./constants/node-data-type";
 
 interface ReactFlowNodeData extends NodeData {
   type: string;
@@ -52,6 +56,7 @@ export const reactFlowNodeTypes: {
   single_file_upload: SingleFileUploadNode,
   single_file_download: SingleFileDownloadNode,
   inline_text_input: InlineTextInputNode,
+  txt_to_md: TextToMdNode,
 };
 
 export function reactFlowNodeGenerate(

@@ -9,6 +9,8 @@ import { SingleFileDownloadNodeSelect } from "../nodes/services/single_file_down
 import { Gpt4Turbo2InputsNodeSelect } from "../nodes/services/gpt_4_turbo/gpt_4_turbo_2_inputs";
 import { SandboxEmailNodeSelect } from "../nodes/services/sandbox_email";
 import { InlineTextInputNodeSelect } from "../nodes/services/inline_text_input";
+import { TxtToMdNodeSelect } from "../nodes/services/txt_to_md";
+
 import clsx from "clsx";
 
 type NodeSelectType = ({
@@ -36,7 +38,9 @@ export function NodeSidePanel({
     // "single_file_upload_pdf",
     // "single_file_upload_csv",
     "single_file_download_txt",
+    "single_file_download_md",
     "sandbox_email",
+    "txt_to_md",
     "inline_text_input",
   ];
 
@@ -47,8 +51,10 @@ export function NodeSidePanel({
     single_file_upload_pdf: SingleFileUploadNodeSelect,
     single_file_upload_csv: SingleFileUploadNodeSelect,
     single_file_download_txt: SingleFileDownloadNodeSelect,
+    single_file_download_md: SingleFileDownloadNodeSelect,
     sandbox_email: SandboxEmailNodeSelect,
     inline_text_input: InlineTextInputNodeSelect,
+    txt_to_md: TxtToMdNodeSelect,
   };
 
   return (

@@ -3,7 +3,7 @@ import { MoveRight, Upload } from "lucide-react";
 import React, { memo, useCallback } from "react";
 import { Handle, Position } from "reactflow";
 import { NodeData } from "../data";
-import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { dataBlockBgColorMap } from "@/components/nodes/data/constants/data-io-property";
 import { toast } from "@/components/ui/use-toast";
 import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";

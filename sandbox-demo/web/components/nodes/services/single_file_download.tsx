@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { Download, MoveRight } from "lucide-react";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
-import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { dataBlockBgColorMap } from "@/components/nodes/data/constants/data-io-property";
 import { NodeData } from "../data";
 import { getS3PresignedUrl } from "@/lib/nodes/infra/s3-data-io";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";

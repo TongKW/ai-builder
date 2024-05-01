@@ -4,7 +4,7 @@ import Image from "next/image";
 import React, { memo } from "react";
 import { Handle, Position } from "reactflow";
 import { NodeData } from "../../data";
-import { dataBlockBgColorMap } from "@/lib/constants/data-io-property";
+import { dataBlockBgColorMap } from "@/components/nodes/data/constants/data-io-property";
 import { ContextMenuItem } from "@/components/ui/context-menu";
 import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 import { TooltipWrapper } from "@/components/ui/tooltip-wrapper";
