@@ -44,7 +44,7 @@ export async function handler(event) {
         new PutObjectCommand({
           Bucket: "ai-pipeline-builder-sandbox",
           Key: `${workflowId}/data/${outputKeys[0]}`,
-          Body: updatedContent,
+          Body: content,
           ContentType: "text/plain",
         })
       );
@@ -56,8 +56,8 @@ export async function handler(event) {
         }),
       };
     } catch (error) {
-      console.error("Error processing PDF:", error);
-      throw new Error(`Error processing PDF: ${error.message}`);
+      console.error("Error processing:", error);
+      throw new Error(`Error processing: ${error.message}`);
     }
   } else {
     return {

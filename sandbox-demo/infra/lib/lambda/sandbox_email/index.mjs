@@ -84,8 +84,8 @@ export async function handler(event) {
         }),
       };
     } catch (error) {
-      console.error("Error processing PDF:", error);
-      throw new Error(`Error processing PDF: ${error.message}`);
+      console.error("Error processing:", error);
+      throw new Error(`Error processing: ${error.message}`);
     }
   } else {
     return {
