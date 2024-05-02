@@ -12,6 +12,7 @@ import { InlineTextInputNodeSelect } from "../nodes/services/inline_text_input";
 import { TxtToMdNodeSelect } from "../nodes/services/txt_to_md";
 
 import clsx from "clsx";
+import { InlineTextOutputNodeSelect } from "../nodes/services/inline_text_output";
 
 type NodeSelectType = ({
   onClick,
@@ -42,6 +43,7 @@ export function NodeSidePanel({
     "sandbox_email",
     "txt_to_md",
     "inline_text_input",
+    "inline_text_output",
   ];
 
   const nodeSelectMap: { [key: string]: NodeSelectType } = {
@@ -54,6 +56,7 @@ export function NodeSidePanel({
     single_file_download_md: SingleFileDownloadNodeSelect,
     sandbox_email: SandboxEmailNodeSelect,
     inline_text_input: InlineTextInputNodeSelect,
+    inline_text_output: InlineTextOutputNodeSelect,
     txt_to_md: TxtToMdNodeSelect,
   };
 

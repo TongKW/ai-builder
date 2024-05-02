@@ -243,6 +243,27 @@ export const reactFlowData: { [key: string]: NodeData } = {
     parameters: {},
   },
 
+  inline_text_output: {
+    id: "",
+    data: {
+      service: "single_file_download",
+      title: "Text output",
+      description: "Inline text output.",
+      category: "Data Input/Output",
+      status: "idle",
+      input: [
+        {
+          type: "txt",
+          order: 0,
+          title: "text input",
+          description: "input text will input from here",
+        },
+      ],
+      output: [],
+    },
+    parameters: {},
+  },
+
   txt_to_md: {
     id: "",
     data: {

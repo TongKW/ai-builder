@@ -49,6 +49,10 @@ export default function Workflow({
 
   const edgeUpdateSuccessful = useRef(true);
 
+  const [unsavedInlineTextInputIds, setUnsavedInlineTextInputIds] = useState<
+    string[]
+  >([]);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
   const [workflowSrc, setWorkflowSrc] = useState(initWorkflowSrc);
@@ -73,7 +77,6 @@ export default function Workflow({
         const { workflowSrc: updatedWorkflowSrc } = await getWorkflow(
           workflowId
         );
-        console.log(`updatedWorkflowSrc = `, updatedWorkflowSrc);
         const updatedNodes = updateNodesStatus(nodes, updatedWorkflowSrc);
 
         setNodes(updatedNodes);
@@ -97,6 +100,7 @@ export default function Workflow({
   };
 
   const onWorkflowSave = async () => {
+    // 2. sync workflow to cloud
     await saveWorkflow({ workflowId, workflowSrc, nodes, edges });
   };
 
@@ -173,6 +177,8 @@ export default function Workflow({
         editingNodeId,
         setEditingNodeId,
         isRunning,
+        unsavedInlineTextInputIds,
+        setUnsavedInlineTextInputIds,
       }}
     >
       <div className="flex flex-col w-screen h-screen">

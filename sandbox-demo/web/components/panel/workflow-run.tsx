@@ -14,6 +14,8 @@ import {
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { airtableInsertUser } from "@/lib/api/airtable-insert-user";
+import { sleep } from "@/lib/functions/sleep";
+import { useWorkflowContext } from "@/lib/contexts/workflow-context";
 
 export function WorkflowRunPanel({
   isRunning,
@@ -30,6 +32,7 @@ export function WorkflowRunPanel({
   onWorkflowRun: () => Promise<void>;
   onWorkflowSave: () => Promise<void>;
 }) {
+  const { unsavedInlineTextInputIds } = useWorkflowContext();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const onClick = () => {
@@ -45,6 +48,14 @@ export function WorkflowRunPanel({
 
   const onRun = async () => {
     if (isRunning) return;
+    if (unsavedInlineTextInputIds.length) {
+      console.log("save first");
+      toast({
+        title: "Unsaved text input.",
+        description: "You need to save all text input to run the workflow.",
+      });
+      return;
+    }
 
     setRunning(true);
 
@@ -82,8 +93,7 @@ export function WorkflowRunPanel({
 
       // Success
       toast({
-        title: "Workflow started.",
-        description: "The workflow is now being ran.",
+        title: "Workflow finished.",
       });
     } catch (error) {
       toast({

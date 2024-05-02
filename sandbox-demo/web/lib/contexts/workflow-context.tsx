@@ -10,6 +10,8 @@ const WorkflowContext = createContext<{
   editingNodeId: string;
   setEditingNodeId: (nodeId: string) => void;
   isRunning: boolean;
+  unsavedInlineTextInputIds: string[];
+  setUnsavedInlineTextInputIds: React.Dispatch<React.SetStateAction<string[]>>;
 }>({
   workflowId: "",
   isRunning: false,
@@ -28,6 +30,10 @@ const WorkflowContext = createContext<{
   editingNodeId: "",
   setEditingNodeId: (nodeId: string) => {
     console.log(nodeId);
+  },
+  unsavedInlineTextInputIds: [],
+  setUnsavedInlineTextInputIds: (ids: React.SetStateAction<string[]>) => {
+    console.log(ids);
   },
 });
 

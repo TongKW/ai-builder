@@ -12,72 +12,56 @@ import { ContextMenuItem } from "@radix-ui/react-context-menu";
 import { ContextMenuWrapper } from "@/components/ui/context-menu-wrapper";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useDebouncedCallback } from "use-debounce";
 
-function InlineTextInputNode({ id: nodeId, data }: NodeData) {
+function InlineTextOutputNode({ id: nodeId, data }: NodeData) {
   const { workflowId, setNodes, setEditingNodeId, isRunning } =
     useWorkflowContext();
 
-  const onSave = async (textValue: string) => {
-    try {
-      if (!data.output[0].key) {
-        toast({
-          title: "Failed to save text.",
-          description: "You must connect to an input first.",
-        });
-        return;
-      }
-      toast({
-        title: "Saving your text...",
-        description: "This might takes a few seconds.",
-      });
+  const [textValue, setTextValue] = useState("");
+  const fetched = useRef(false);
 
-      const presignedUrl = await getS3PresignedUrl(
-        workflowId,
-        data.output[0].key,
-        "putObject"
-      );
+  useEffect(() => {
+    (async () => {
+      if (data.status === "ready") {
+        if (!data.input[0].key || fetched.current) {
+          return;
+        }
+        try {
+          fetched.current = true;
 
-      // Create a new Blob from the file with the correct MIME type
-      const blob = new Blob([textValue], { type: `text/plain; charset=utf-8` });
+          // 1. Get the pre-signed URL
+          const presignedUrl = await getS3PresignedUrl(
+            workflowId,
+            data.input[0].key,
+            "getObject" // Changed from putObject to getObject
+          );
+          console.log(`presignedUrl = ${presignedUrl}`);
 
-      await fetch(presignedUrl, {
-        method: "PUT",
-        body: blob,
-        headers: {
-          "Content-Type": blob.type,
-        },
-      });
+          // 2. Fetch the object from S3 using the pre-signed URL
+          const response = await fetch(presignedUrl, { cache: "no-store" });
 
-      setNodes((nodes: any[]) =>
-        nodes.map((node) => {
-          if (node.id === nodeId) {
-            const nodeCopy = { ...node };
-            nodeCopy.data.status = "ready";
-            if (nodeCopy.data?.output[0]?.status) {
-              nodeCopy.data.output[0].status = "ready";
-            }
-            return nodeCopy;
+          console.log(response);
+          if (!response.ok) {
+            fetched.current = false;
+            throw new Error("Failed to fetch the file from S3.");
           }
-          return node;
-        })
-      );
+          const blob = await response.blob();
 
-      toast({
-        title: "File uploaded successfully.",
-        description: "File has been successfully uploaded to S3.",
-      });
-    } catch (error) {
-      console.log("Upload file error");
-      console.log(error);
+          // 3. Write that blob to text, and update textValue
+          const text = await blob.text();
 
-      toast({
-        variant: "destructive",
-        title: "Failed to upload file.",
-        description: "Please try to upload file later.",
-      });
-    }
-  };
+          fetched.current = false;
+          setTextValue(text);
+        } catch (error) {
+          fetched.current = false;
+          console.error(error);
+        }
+      } else {
+        fetched.current = false;
+        setTextValue("");
+      }
+    })();
+  }, [data.input, data.status, workflowId]);
 
   return (
     <ContextMenuWrapper
@@ -91,32 +75,31 @@ function InlineTextInputNode({ id: nodeId, data }: NodeData) {
           >
             {data.title}
           </p>
-          <InlineTextInputNodeUi
+          <InlineTextOutputNodeUi
             nodeId={nodeId}
             status={data.status ?? "idle"}
             description={data.description}
-            isRunning={isRunning}
-            onSave={onSave}
+            textValue={textValue}
           />
 
           <TooltipWrapper
             triggerElement={
               <Handle
-                id="output.0"
-                type="source"
-                position={Position.Right}
+                id="input.0"
+                type="target"
+                position={Position.Left}
                 className={clsx(
                   "w-6 h-6 border-2 border-stone-400 flex items-center justify-center relative"
                 )}
                 style={{
                   backgroundColor:
-                    dataBlockBgColorMap[data.output[0]?.type ?? "txt"],
+                    dataBlockBgColorMap[data.input[0]?.type ?? "txt"],
                   animation:
-                    data.output[0].status === "ready"
+                    data.input[0].status === "ready"
                       ? "pulse 1s infinite"
                       : undefined,
                   boxShadow:
-                    data.output[0].status === "ready"
+                    data.input[0].status === "ready"
                       ? "0 0 20px rgba(252, 211, 77, 1.0)"
                       : undefined,
                 }}
@@ -127,12 +110,12 @@ function InlineTextInputNode({ id: nodeId, data }: NodeData) {
                     transform: "translateY(-100%)",
                   }}
                 >
-                  {data.output[0].title ?? ""}
+                  {data.input[0].title ?? ""}
                 </p>
                 <MoveRight className="pointer-events-none w-4 h-4" />
               </Handle>
             }
-            tooltipElement={<p>{data.output[0].description ?? ""}</p>}
+            tooltipElement={<p>{data.input[0].description ?? ""}</p>}
           />
         </div>
       }
@@ -147,33 +130,18 @@ function InlineTextInputNode({ id: nodeId, data }: NodeData) {
     />
   );
 }
-export function InlineTextInputNodeUi({
+export function InlineTextOutputNodeUi({
   nodeId,
   status,
   description,
-  isRunning = false,
-  onSave,
+  textValue,
 }: {
   nodeId: string;
   status: string;
   description?: string;
   size?: number;
-  isRunning: boolean;
-  onSave?: (value: string) => Promise<void>;
+  textValue: string;
 }) {
-  const { setUnsavedInlineTextInputIds } = useWorkflowContext();
-
-  const [textValue, setTextValue] = useState("");
-
-  const updateUnsavedStates = useDebouncedCallback(
-    () => {
-      setUnsavedInlineTextInputIds((ids) =>
-        Array.from(new Set([...ids, nodeId]))
-      );
-    },
-    200 // delay in milliseconds
-  );
-
   return (
     <TooltipWrapper
       triggerElement={
@@ -188,25 +156,21 @@ export function InlineTextInputNodeUi({
           )}
         >
           <Textarea
-            disabled={isRunning}
+            disabled
             placeholder="Text input here"
             value={textValue}
-            onChange={(event) => {
-              setTextValue(event.target.value);
-              updateUnsavedStates();
-            }}
             className="flex-grow"
           />
           <Button
             className="w-[120px]"
             onClick={() => {
-              onSave?.(textValue);
-              setUnsavedInlineTextInputIds((ids) =>
-                ids.filter((id) => id !== nodeId)
-              );
+              navigator.clipboard.writeText(textValue);
+              toast({
+                title: "Copied to textboard",
+              });
             }}
           >
-            Save
+            Copy
           </Button>
         </div>
       }
@@ -215,7 +179,7 @@ export function InlineTextInputNodeUi({
   );
 }
 
-export function InlineTextInputNodeSelect({
+export function InlineTextOutputNodeSelect({
   onClick,
   title = "",
   description = "",
@@ -250,4 +214,4 @@ export function InlineTextInputNodeSelect({
   );
 }
 
-export default memo(InlineTextInputNode);
+export default memo(InlineTextOutputNode);

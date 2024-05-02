@@ -43,7 +43,7 @@ function SingleFileDownloadNode({ id: nodeId, data, parameters }: NodeData) {
       console.log(`presignedUrl = ${presignedUrl}`);
 
       // 2. Fetch the object from S3 using the pre-signed URL
-      const response = await fetch(presignedUrl);
+      const response = await fetch(presignedUrl, { cache: "no-store" });
 
       console.log(response);
       if (!response.ok) throw new Error("Failed to fetch the file from S3.");
